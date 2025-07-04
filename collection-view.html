@@ -210,7 +210,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="app.html" class="back-btn">← Back to Collections</a>
+        <a href="javascript:void(0)" class="back-btn" onclick="goBack()">← Back</a>
         
         <div class="collection-header">
             <h1 class="collection-title" id="collectionTitle">Loading...</h1>
@@ -289,10 +289,13 @@
     <script>
         let currentCollection = null;
         let currentItems = [];
+        let currentSubCollection = null;
         
-        // Get collection ID from URL
+        // Get collection ID and sub-collection ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const collectionId = urlParams.get('id');
+        const subCollectionId = urlParams.get('subCollectionId');
+        const isViewingSubCollection = !!subCollectionId;
         
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -315,16 +318,42 @@
         // Load collection data
         async function loadCollection() {
             try {
-                const doc = await firebase.firestore().collection('collections').doc(collectionId).get();
-                
-                if (!doc.exists) {
-                    alert('Collection not found');
-                    window.location.href = 'app.html';
-                    return;
+                if (isViewingSubCollection) {
+                    // Load sub-collection data
+                    const subCollectionDoc = await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .collection('subCollections')
+                        .doc(subCollectionId)
+                        .get();
+                    
+                    if (!subCollectionDoc.exists) {
+                        alert('Sub-collection not found');
+                        window.location.href = 'app.html';
+                        return;
+                    }
+                    
+                    currentSubCollection = { id: subCollectionDoc.id, ...subCollectionDoc.data() };
+                    
+                    // Also load parent collection for context
+                    const parentDoc = await firebase.firestore().collection('collections').doc(collectionId).get();
+                    currentCollection = { id: parentDoc.id, ...parentDoc.data() };
+                    
+                    displaySubCollection();
+                } else {
+                    // Load regular collection data
+                    const doc = await firebase.firestore().collection('collections').doc(collectionId).get();
+                    
+                    if (!doc.exists) {
+                        alert('Collection not found');
+                        window.location.href = 'app.html';
+                        return;
+                    }
+                    
+                    currentCollection = { id: doc.id, ...doc.data() };
+                    displayCollection();
                 }
                 
-                currentCollection = { id: doc.id, ...doc.data() };
-                displayCollection();
                 loadItems();
                 
             } catch (error) {
@@ -345,15 +374,42 @@
             document.title = `${currentCollection.name} - Trove`;
         }
         
-        // Load items for this collection
+        // Display sub-collection information
+        function displaySubCollection() {
+            document.getElementById('collectionTitle').textContent = `${currentCollection.name} > ${currentSubCollection.name}`;
+            document.getElementById('collectionDescription').textContent = currentSubCollection.description || '';
+            document.getElementById('templateName').textContent = currentCollection.templateName || 'General';
+            document.getElementById('itemCount').textContent = currentSubCollection.itemCount || 0;
+            document.getElementById('totalValue').textContent = (currentSubCollection.estimatedValue || 0).toLocaleString();
+            
+            // Update page title
+            document.title = `${currentSubCollection.name} - ${currentCollection.name} - Trove`;
+        }
+        
+        // Load items for this collection or sub-collection
         async function loadItems() {
             try {
-                const snapshot = await firebase.firestore()
-                    .collection('collections')
-                    .doc(collectionId)
-                    .collection('items')
-                    .orderBy('createdAt', 'desc')
-                    .get();
+                let snapshot;
+                
+                if (isViewingSubCollection) {
+                    // Load items from sub-collection
+                    snapshot = await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .collection('subCollections')
+                        .doc(subCollectionId)
+                        .collection('items')
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                } else {
+                    // Load items from main collection
+                    snapshot = await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .collection('items')
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                }
                 
                 currentItems = [];
                 snapshot.forEach(doc => {
@@ -513,25 +569,60 @@
             const itemData = await TemplateManager.collectFormData(currentCollection.templateId || 'general', 'itemFormFields');
             
             try {
-                // Add to Firestore
-                await firebase.firestore()
-                    .collection('collections')
-                    .doc(collectionId)
-                    .collection('items')
-                    .add({
-                        ...itemData,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                
-                // Update collection item count
-                await firebase.firestore()
-                    .collection('collections')
-                    .doc(collectionId)
-                    .update({
-                        itemCount: firebase.firestore.FieldValue.increment(1),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                if (isViewingSubCollection) {
+                    // Add to sub-collection
+                    await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .collection('subCollections')
+                        .doc(subCollectionId)
+                        .collection('items')
+                        .add({
+                            ...itemData,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    
+                    // Update sub-collection item count
+                    await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .collection('subCollections')
+                        .doc(subCollectionId)
+                        .update({
+                            itemCount: firebase.firestore.FieldValue.increment(1),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    
+                    // Update parent collection item count
+                    await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .update({
+                            itemCount: firebase.firestore.FieldValue.increment(1),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                } else {
+                    // Add to main collection
+                    await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .collection('items')
+                        .add({
+                            ...itemData,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    
+                    // Update collection item count
+                    await firebase.firestore()
+                        .collection('collections')
+                        .doc(collectionId)
+                        .update({
+                            itemCount: firebase.firestore.FieldValue.increment(1),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                }
                 
                 closeAddItemModal();
                 loadItems();
@@ -715,6 +806,17 @@
             
             filteredItems = [...currentItems];
             displayFilteredItems();
+        }
+        
+        // Navigation function
+        function goBack() {
+            if (isViewingSubCollection) {
+                // Go back to sub-collections view
+                window.location.href = `sub-collections.html?collectionId=${collectionId}`;
+            } else {
+                // Go back to main collections
+                window.location.href = 'app.html';
+            }
         }
         
         // Close modal when clicking outside

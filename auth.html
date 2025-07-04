@@ -514,11 +514,149 @@
             }
         });
 
-        // Show demo info if in demo mode
+        // Theme Management for Auth Page
+        const themes = {
+            'neon-arcade': {
+                name: 'Neon Arcade',
+                colors: {
+                    '--bg-dark': '#0a0a0a',
+                    '--text-primary': '#ffffff',
+                    '--text-secondary': '#cccccc',
+                    '--laser-green': '#00ff7f',
+                    '--cyan': '#00d4ff',
+                    '--electric-magenta': '#ff00ff',
+                    '--card-bg': '#1e1e1e',
+                    '--border-cyan': '#00d4ff'
+                }
+            },
+            'collectors-study': {
+                name: 'Collector\'s Study',
+                colors: {
+                    '--bg-dark': '#F5F5F5',
+                    '--text-primary': '#222222',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#002147',
+                    '--cyan': '#1a4b84',
+                    '--electric-magenta': '#8B4513',
+                    '--card-bg': '#FFFFFF',
+                    '--border-cyan': '#E0E0E0'
+                }
+            },
+            '8bit-bliss': {
+                name: '8-Bit Bliss',
+                colors: {
+                    '--bg-dark': '#1A237E',
+                    '--text-primary': '#E0E0E0',
+                    '--text-secondary': '#BDBDBD',
+                    '--laser-green': '#FF5722',
+                    '--cyan': '#FF9800',
+                    '--electric-magenta': '#FFC107',
+                    '--card-bg': '#2962FF',
+                    '--border-cyan': '#2962FF'
+                }
+            },
+            'y2k-dream': {
+                name: 'Y2K Dream',
+                colors: {
+                    '--bg-dark': 'linear-gradient(135deg, #E3F2FD, #F3E5F5)',
+                    '--text-primary': '#333333',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#00FFFF',
+                    '--cyan': '#FF69B4',
+                    '--electric-magenta': '#FF1493',
+                    '--card-bg': 'rgba(255, 255, 255, 0.8)',
+                    '--border-cyan': '#00FFFF'
+                }
+            },
+            'comic-inked': {
+                name: 'Comic Book Inked',
+                colors: {
+                    '--bg-dark': '#F5F5F5',
+                    '--text-primary': '#333333',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#D32F2F',
+                    '--cyan': '#FBC02D',
+                    '--electric-magenta': '#FF5722',
+                    '--card-bg': '#FFFFFF',
+                    '--border-cyan': '#D32F2F'
+                }
+            },
+            'minimalist-mint': {
+                name: 'Minimalist Mint',
+                colors: {
+                    '--bg-dark': '#FFFFFF',
+                    '--text-primary': '#333333',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#A5D6A7',
+                    '--cyan': '#81C784',
+                    '--electric-magenta': '#66BB6A',
+                    '--card-bg': '#FAFAFA',
+                    '--border-cyan': '#A5D6A7'
+                }
+            }
+        };
+
+        function applyTheme(themeId) {
+            const theme = themes[themeId];
+            if (!theme) return;
+
+            const root = document.documentElement;
+            Object.entries(theme.colors).forEach(([property, value]) => {
+                root.style.setProperty(property, value);
+            });
+
+            // Update auth container background
+            document.body.style.background = theme.colors['--bg-dark'];
+            
+            // Update auth card
+            const authCard = document.querySelector('.auth-card');
+            if (authCard) {
+                authCard.style.backgroundColor = theme.colors['--card-bg'];
+                authCard.style.borderColor = theme.colors['--border-cyan'];
+            }
+
+            // Update buttons
+            const primaryButtons = document.querySelectorAll('.btn-primary');
+            primaryButtons.forEach(btn => {
+                btn.style.backgroundColor = theme.colors['--laser-green'];
+            });
+
+            // Update text colors
+            const headings = document.querySelectorAll('h1, h2, h3');
+            headings.forEach(heading => {
+                heading.style.color = theme.colors['--text-primary'];
+            });
+
+            const paragraphs = document.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                p.style.color = theme.colors['--text-secondary'];
+            });
+
+            // Update form inputs
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.style.backgroundColor = theme.colors['--card-bg'];
+                input.style.color = theme.colors['--text-primary'];
+                input.style.borderColor = theme.colors['--border-cyan'];
+            });
+        }
+
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('trove-theme');
+            if (savedTheme && themes[savedTheme]) {
+                applyTheme(savedTheme);
+            } else {
+                // Default to neon-arcade
+                applyTheme('neon-arcade');
+            }
+        }
+
+        // Show demo info if in demo mode and load theme
         document.addEventListener('DOMContentLoaded', function() {
             if (window.DEMO_MODE || typeof firebase === 'undefined' || !firebase.apps.length) {
                 document.getElementById('demoInfo').style.display = 'block';
             }
+            loadSavedTheme();
         });
 
         // Utility functions

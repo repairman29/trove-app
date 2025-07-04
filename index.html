@@ -268,6 +268,15 @@
                         <p>Share your awesome finds with the community. Get likes, comments, and trade offers from fellow collectors.</p>
                     </div>
                 </div>
+                
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="wardrobe-demo.html" class="btn btn-primary" style="background: linear-gradient(135deg, #FF69B4, #FF1493); border: none; padding: 15px 30px; font-size: 1.1rem;">
+                        👗 See Wardrobe Demo
+                    </a>
+                    <p style="margin-top: 15px; color: #A0A0A0; font-size: 0.9rem;">
+                        See how a fashion collector uses Trove's sub-collections and custom templates
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -286,5 +295,176 @@
         </div>
     </footer>
 
+    <script>
+        // Theme Management for Landing Page
+        const themes = {
+            'neon-arcade': {
+                name: 'Neon Arcade',
+                colors: {
+                    '--bg-dark': '#0a0a0a',
+                    '--text-primary': '#EAEAEA',
+                    '--text-secondary': '#A0A0A0',
+                    '--laser-green': '#00FF7F',
+                    '--cyan': '#00FFFF',
+                    '--electric-magenta': '#FF00FF',
+                    '--card-bg': '#1E1E1E',
+                    '--header-bg': 'rgba(30, 30, 30, 0.8)',
+                    '--border-cyan': 'rgba(0, 255, 255, 0.3)',
+                    '--border-magenta': 'rgba(255, 0, 255, 0.2)'
+                }
+            },
+            'collectors-study': {
+                name: 'Collector\'s Study',
+                colors: {
+                    '--bg-dark': '#F5F5F5',
+                    '--text-primary': '#222222',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#002147',
+                    '--cyan': '#1a4b84',
+                    '--electric-magenta': '#8B4513',
+                    '--card-bg': '#FFFFFF',
+                    '--header-bg': 'rgba(255, 255, 255, 0.9)',
+                    '--border-cyan': 'rgba(26, 75, 132, 0.3)',
+                    '--border-magenta': 'rgba(139, 69, 19, 0.2)'
+                }
+            },
+            '8bit-bliss': {
+                name: '8-Bit Bliss',
+                colors: {
+                    '--bg-dark': '#1A237E',
+                    '--text-primary': '#E0E0E0',
+                    '--text-secondary': '#BDBDBD',
+                    '--laser-green': '#FF5722',
+                    '--cyan': '#FF9800',
+                    '--electric-magenta': '#FFC107',
+                    '--card-bg': '#2962FF',
+                    '--header-bg': 'rgba(13, 71, 161, 0.8)',
+                    '--border-cyan': 'rgba(255, 152, 0, 0.3)',
+                    '--border-magenta': 'rgba(255, 193, 7, 0.2)'
+                }
+            },
+            'y2k-dream': {
+                name: 'Y2K Dream',
+                colors: {
+                    '--bg-dark': 'linear-gradient(135deg, #E3F2FD, #F3E5F5)',
+                    '--text-primary': '#333333',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#00FFFF',
+                    '--cyan': '#FF69B4',
+                    '--electric-magenta': '#FF1493',
+                    '--card-bg': 'rgba(255, 255, 255, 0.8)',
+                    '--header-bg': 'rgba(255, 255, 255, 0.9)',
+                    '--border-cyan': 'rgba(0, 255, 255, 0.3)',
+                    '--border-magenta': 'rgba(255, 105, 180, 0.2)'
+                }
+            },
+            'comic-inked': {
+                name: 'Comic Book Inked',
+                colors: {
+                    '--bg-dark': '#F5F5F5',
+                    '--text-primary': '#333333',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#D32F2F',
+                    '--cyan': '#FBC02D',
+                    '--electric-magenta': '#FF5722',
+                    '--card-bg': '#FFFFFF',
+                    '--header-bg': 'rgba(255, 255, 255, 0.9)',
+                    '--border-cyan': 'rgba(211, 47, 47, 0.3)',
+                    '--border-magenta': 'rgba(251, 192, 45, 0.2)'
+                }
+            },
+            'minimalist-mint': {
+                name: 'Minimalist Mint',
+                colors: {
+                    '--bg-dark': '#FFFFFF',
+                    '--text-primary': '#333333',
+                    '--text-secondary': '#666666',
+                    '--laser-green': '#A5D6A7',
+                    '--cyan': '#81C784',
+                    '--electric-magenta': '#66BB6A',
+                    '--card-bg': '#FAFAFA',
+                    '--header-bg': 'rgba(250, 250, 250, 0.9)',
+                    '--border-cyan': 'rgba(165, 214, 167, 0.3)',
+                    '--border-magenta': 'rgba(129, 199, 132, 0.2)'
+                }
+            }
+        };
+
+        function applyTheme(themeId) {
+            const theme = themes[themeId];
+            if (!theme) return;
+
+            const root = document.documentElement;
+            Object.entries(theme.colors).forEach(([property, value]) => {
+                root.style.setProperty(property, value);
+            });
+
+            // Update specific elements for the landing page
+            document.body.style.background = theme.colors['--bg-dark'];
+            
+            // Update header background
+            const header = document.querySelector('header');
+            if (header) {
+                header.style.backgroundColor = theme.colors['--header-bg'];
+            }
+
+            // Update cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.style.backgroundColor = theme.colors['--card-bg'];
+                card.style.borderColor = theme.colors['--border-cyan'];
+            });
+
+            // Update buttons
+            const primaryButtons = document.querySelectorAll('.btn-primary');
+            primaryButtons.forEach(btn => {
+                btn.style.backgroundColor = theme.colors['--laser-green'];
+            });
+
+            const secondaryButtons = document.querySelectorAll('.btn-secondary');
+            secondaryButtons.forEach(btn => {
+                btn.style.color = theme.colors['--electric-magenta'];
+                btn.style.borderColor = theme.colors['--electric-magenta'];
+            });
+
+            // Update text colors
+            const headings = document.querySelectorAll('h1, h2, h3');
+            headings.forEach(heading => {
+                heading.style.color = theme.colors['--text-primary'];
+            });
+
+            const paragraphs = document.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                p.style.color = theme.colors['--text-secondary'];
+            });
+
+            // Update navigation
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.style.color = theme.colors['--text-secondary'];
+            });
+
+            // Update logo
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.style.color = theme.colors['--text-primary'];
+            }
+        }
+
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('trove-theme');
+            if (savedTheme && themes[savedTheme]) {
+                applyTheme(savedTheme);
+            } else {
+                // Default to neon-arcade
+                applyTheme('neon-arcade');
+            }
+        }
+
+        // Load theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedTheme();
+        });
+    </script>
 </body>
 </html>

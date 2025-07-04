@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Trove</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .settings-page {
+            min-height: 100vh;
+            background: var(--deep-charcoal);
+            color: var(--off-white);
+        }
+
+        .settings-header {
+            background: linear-gradient(135deg, var(--dark-slate), var(--deep-charcoal));
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 2px solid var(--electric-magenta);
+        }
+
+        .settings-header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--laser-green);
+            margin: 0 0 1rem 0;
+            text-shadow: 0 0 20px rgba(0, 255, 127, 0.5);
+        }
+
+        .settings-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .settings-section {
+            background: var(--dark-slate);
+            border: 2px solid var(--vibrant-cyan);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-section:hover {
+            border-color: var(--laser-green);
+            box-shadow: 0 5px 15px rgba(0, 255, 127, 0.2);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--laser-green);
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .subscription-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .info-card {
+            background: var(--deep-charcoal);
+            border: 1px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--off-white);
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--laser-green);
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .plan-badge.free {
+            background: var(--electric-magenta);
+            color: var(--deep-charcoal);
+        }
+
+        .plan-badge.pro {
+            background: var(--laser-green);
+            color: var(--deep-charcoal);
+        }
+
+        .plan-badge.patron {
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            color: var(--deep-charcoal);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            color: var(--deep-charcoal);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 127, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--vibrant-cyan);
+            color: var(--off-white);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--laser-green);
+            color: var(--laser-green);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--electric-magenta), #ff6b6b);
+            color: var(--deep-charcoal);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--dark-slate);
+            border: 2px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            color: var(--off-white);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            border-color: var(--laser-green);
+            color: var(--laser-green);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--off-white);
+            opacity: 0.7;
+        }
+
+        .error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid var(--electric-magenta);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--off-white);
+        }
+
+        @media (max-width: 768px) {
+            .settings-content {
+                padding: 2rem 1rem;
+            }
+            
+            .subscription-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="settings-page">
+    <a href="app.html" class="back-btn">← Back to Trove</a>
+
+    <header class="settings-header">
+        <h1>⚙️ Settings</h1>
+    </header>
+
+    <main class="settings-content">
+        <!-- Subscription Section -->
+        <div class="settings-section">
+            <h2 class="section-title">💳 Subscription</h2>
+            <div id="subscriptionContent">
+                <div class="loading">Loading subscription details...</div>
+            </div>
+        </div>
+
+        <!-- Account Section -->
+        <div class="settings-section">
+            <h2 class="section-title">👤 Account</h2>
+            <div id="accountContent">
+                <div class="loading">Loading account details...</div>
+            </div>
+        </div>
+
+        <!-- Theme Section -->
+        <div class="settings-section">
+            <h2 class="section-title">🎨 Theme</h2>
+            <p>Customize your Trove experience with different themes.</p>
+            <a href="settings-theme.html" class="btn btn-primary">Choose Theme</a>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Stripe Service -->
+    <script src="stripe-service.js"></script>
+    
+    <script>
+        let currentUser = null;
+        let userSubscription = null;
+
+        // Check authentication state
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            currentUser = user;
+            await loadUserData();
+        });
+
+        async function loadUserData() {
+            try {
+                // Load subscription data
+                userSubscription = await stripeService.getSubscription(currentUser.uid);
+                updateSubscriptionUI();
+                updateAccountUI();
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showError('Failed to load user data. Please refresh the page.');
+            }
+        }
+
+        function updateSubscriptionUI() {
+            const content = document.getElementById('subscriptionContent');
+            
+            if (!userSubscription) {
+                content.innerHTML = '<div class="error">Failed to load subscription data</div>';
+                return;
+            }
+
+            const plan = userSubscription.plan;
+            const limits = userSubscription.limits;
+            const status = userSubscription.status;
+
+            content.innerHTML = `
+                <div class="subscription-info">
+                    <div class="info-card">
+                        <div class="info-label">Current Plan</div>
+                        <div class="info-value">
+                            <span class="plan-badge ${plan}">${plan.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">${status}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Collections Limit</div>
+                        <div class="info-value">${limits.collections === -1 ? 'Unlimited' : limits.collections}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Templates Limit</div>
+                        <div class="info-value">${limits.templates === -1 ? 'Unlimited' : limits.templates}</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    ${plan === 'free' ? 
+                        `<a href="pricing.html" class="btn btn-primary">Upgrade to Pro</a>` :
+                        `<button onclick="manageBilling()" class="btn btn-secondary">Manage Billing</button>
+                         <button onclick="cancelSubscription()" class="btn btn-danger">Cancel Subscription</button>`
+                    }
+                </div>
+            `;
+        }
+
+        function updateAccountUI() {
+            const content = document.getElementById('accountContent');
+            
+            content.innerHTML = `
+                <div class="subscription-info">
+                    <div class="info-card">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">${currentUser.email}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">User ID</div>
+                        <div class="info-value" style="font-size: 0.8rem;">${currentUser.uid}</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    <button onclick="signOut()" class="btn btn-secondary">Sign Out</button>
+                </div>
+            `;
+        }
+
+        async function manageBilling() {
+            try {
+                if (userSubscription && userSubscription.customerId) {
+                    await stripeService.manageBilling(userSubscription.customerId);
+                } else {
+                    alert('Billing information not available. Please contact support.');
+                }
+            } catch (error) {
+                console.error('Error managing billing:', error);
+                alert('Failed to open billing portal. Please try again.');
+            }
+        }
+
+        async function cancelSubscription() {
+            if (confirm('Are you sure you want to cancel your subscription? You will lose access to Pro features at the end of your billing period.')) {
+                try {
+                    if (userSubscription && userSubscription.customerId) {
+                        await stripeService.manageBilling(userSubscription.customerId);
+                    } else {
+                        alert('Please contact support to cancel your subscription.');
+                    }
+                } catch (error) {
+                    console.error('Error canceling subscription:', error);
+                    alert('Failed to cancel subscription. Please try again.');
+                }
+            }
+        }
+
+        async function signOut() {
+            try {
+                await firebase.auth().signOut();
+                window.location.href = 'auth.html';
+            } catch (error) {
+                console.error('Error signing out:', error);
+                alert('Failed to sign out. Please try again.');
+            }
+        }
+
+        function showError(message) {
+            const content = document.getElementById('subscriptionContent');
+            content.innerHTML = `<div class="error">${message}</div>`;
+        }
+    </script>
+</body>
+</html> 

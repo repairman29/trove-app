@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Collections - Trove</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .sub-collections-header {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-cyan);
+        }
+        
+        .parent-collection-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 8px var(--glow-cyan);
+        }
+        
+        .parent-collection-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .parent-collection-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-item {
+            background: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-cyan);
+        }
+        
+        .back-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-cyan);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--laser-green);
+        }
+        
+        .sub-collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .sub-collection-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-cyan);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sub-collection-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--glow-cyan);
+        }
+        
+        .sub-collection-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .sub-collection-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+        
+        .sub-collection-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .sub-collection-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .sub-collection-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .add-sub-collection-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--laser-green);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 255, 127, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .add-sub-collection-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 255, 127, 0.5);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: var(--bg-card);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-cyan);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 30px var(--glow-cyan);
+        }
+        
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--electric-magenta);
+            text-shadow: 0 0 8px var(--glow-magenta);
+            margin-bottom: 20px;
+        }
+        
+        .close {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close:hover {
+            color: var(--laser-green);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sub-collections-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .parent-collection-stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <a href="app.html" class="back-btn">
+            ← Back to Collections
+        </a>
+        
+        <!-- Parent Collection Header -->
+        <div class="sub-collections-header" id="parentCollectionHeader">
+            <h1 class="parent-collection-title" id="parentCollectionTitle">Loading...</h1>
+            <p class="parent-collection-description" id="parentCollectionDescription"></p>
+            <div class="parent-collection-stats">
+                <div class="stat-item">
+                    <span id="totalSubCollections">0</span> Sub-Collections
+                </div>
+                <div class="stat-item">
+                    <span id="totalItems">0</span> Total Items
+                </div>
+                <div class="stat-item">
+                    <span id="totalValue">$0</span> Estimated Value
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sub-Collections Grid -->
+        <div class="sub-collections-grid" id="subCollectionsContainer">
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">📚</div>
+                <h3 style="color: var(--text-primary); margin-bottom: 15px;">No Sub-Collections Yet</h3>
+                <p style="margin-bottom: 30px;">Create your first sub-collection to organize your items better!</p>
+                <button class="btn btn-primary" onclick="openCreateSubCollectionModal()">+ Create Sub-Collection</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Sub-Collection Button -->
+    <button class="add-sub-collection-btn" onclick="openCreateSubCollectionModal()" title="Add Sub-Collection">+</button>
+    
+    <!-- Create Sub-Collection Modal -->
+    <div id="createSubCollectionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateSubCollectionModal()">&times;</span>
+            <h2 class="modal-title">Create New Sub-Collection</h2>
+            <form id="createSubCollectionForm">
+                <div class="form-group">
+                    <label class="form-label" for="subCollectionName">Sub-Collection Name</label>
+                    <input type="text" id="subCollectionName" class="form-input" placeholder="e.g., Nintendo Entertainment System" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="subCollectionDescription">Description</label>
+                    <textarea id="subCollectionDescription" class="form-input" rows="3" placeholder="Describe this sub-collection..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="subCollectionCategory">Category</label>
+                    <select id="subCollectionCategory" class="form-input">
+                        <option value="General">General</option>
+                        <option value="Games">Games</option>
+                        <option value="Comics">Comics</option>
+                        <option value="Toys">Toys</option>
+                        <option value="Cards">Cards</option>
+                        <option value="Books">Books</option>
+                        <option value="Art">Art</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="subCollectionTags">Tags (comma separated)</label>
+                    <input type="text" id="subCollectionTags" class="form-input" placeholder="vintage, rare, complete">
+                </div>
+                <button type="submit" class="btn btn-primary">Create Sub-Collection</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Collection Management -->
+    <script src="collections.js"></script>
+    
+    <script>
+        let currentCollectionId = null;
+        let parentCollection = null;
+        
+        // Get collection ID from URL parameters
+        function getCollectionIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('collectionId');
+        }
+        
+        // Load parent collection details
+        async function loadParentCollection() {
+            try {
+                currentCollectionId = getCollectionIdFromUrl();
+                if (!currentCollectionId) {
+                    throw new Error('No collection ID provided');
+                }
+                
+                parentCollection = await CollectionManager.getCollection(currentCollectionId);
+                
+                // Update header
+                document.getElementById('parentCollectionTitle').textContent = parentCollection.name;
+                document.getElementById('parentCollectionDescription').textContent = parentCollection.description || 'No description available';
+                
+            } catch (error) {
+                console.error('❌ Error loading parent collection:', error);
+                alert('Error loading collection. Please try again.');
+                window.location.href = 'app.html';
+            }
+        }
+        
+        // Load sub-collections
+        async function loadSubCollections() {
+            try {
+                if (!currentCollectionId) return;
+                
+                const subCollections = await SubCollectionManager.getSubCollections(currentCollectionId);
+                
+                // Update stats
+                const totalSubCollections = subCollections.length;
+                const totalItems = subCollections.reduce((sum, sc) => sum + (sc.itemCount || 0), 0);
+                const totalValue = subCollections.reduce((sum, sc) => sum + (sc.estimatedValue || 0), 0);
+                
+                document.getElementById('totalSubCollections').textContent = totalSubCollections;
+                document.getElementById('totalItems').textContent = totalItems.toLocaleString();
+                document.getElementById('totalValue').textContent = `$${totalValue.toLocaleString()}`;
+                
+                // Render sub-collections
+                renderSubCollections(subCollections);
+                
+            } catch (error) {
+                console.error('❌ Error loading sub-collections:', error);
+                alert('Error loading sub-collections. Please try again.');
+            }
+        }
+        
+        // Render sub-collections in the UI
+        function renderSubCollections(subCollections) {
+            const container = document.getElementById('subCollectionsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (!subCollections || subCollections.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            const subCollectionsHTML = subCollections.map(subCollection => {
+                return `
+                    <div class="sub-collection-card" onclick="openSubCollection('${subCollection.id}')">
+                        <div class="sub-collection-header">
+                            <div class="sub-collection-icon">📚</div>
+                            <h3 class="sub-collection-title">${subCollection.name}</h3>
+                        </div>
+                        <p class="sub-collection-description">${subCollection.description || 'No description'}</p>
+                        <div class="sub-collection-stats">
+                            <span>${subCollection.itemCount || 0} items</span>
+                            <span>$${(subCollection.estimatedValue || 0).toLocaleString()}</span>
+                            <span>${subCollection.updatedAt ? new Date(subCollection.updatedAt).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = subCollectionsHTML;
+        }
+        
+        // Open sub-collection (navigate to items view)
+        function openSubCollection(subCollectionId) {
+            window.location.href = `collection-view.html?id=${currentCollectionId}&subCollectionId=${subCollectionId}`;
+        }
+        
+        // Modal functions
+        function openCreateSubCollectionModal() {
+            document.getElementById('createSubCollectionModal').style.display = 'block';
+        }
+        
+        function closeCreateSubCollectionModal() {
+            document.getElementById('createSubCollectionModal').style.display = 'none';
+            document.getElementById('createSubCollectionForm').reset();
+        }
+        
+        // Form submission
+        document.getElementById('createSubCollectionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentUser = AuthUtils.getCurrentUser();
+            if (!currentUser) {
+                alert('Please log in to create a sub-collection');
+                return;
+            }
+            
+            const formData = {
+                name: document.getElementById('subCollectionName').value,
+                description: document.getElementById('subCollectionDescription').value,
+                category: document.getElementById('subCollectionCategory').value,
+                tags: document.getElementById('subCollectionTags').value.split(',').map(tag => tag.trim()).filter(tag => tag)
+            };
+            
+            try {
+                await SubCollectionManager.createSubCollection(currentCollectionId, formData);
+                
+                closeCreateSubCollectionModal();
+                loadSubCollections(); // Refresh the sub-collections
+                
+                // Show success message
+                alert('Sub-collection created successfully!');
+                
+            } catch (error) {
+                console.error('Error creating sub-collection:', error);
+                alert('Error creating sub-collection. Please try again.');
+            }
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('createSubCollectionModal');
+            if (event.target == modal) {
+                closeCreateSubCollectionModal();
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (AuthUtils.isAuthenticated()) {
+                await loadParentCollection();
+                await loadSubCollections();
+            } else {
+                window.location.href = 'auth.html';
+            }
+        });
+    </script>
+</body>
+</html> 

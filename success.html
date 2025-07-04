@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Pro! - Trove</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .success-page {
+            min-height: 100vh;
+            background: var(--deep-charcoal);
+            color: var(--off-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .success-container {
+            background: var(--dark-slate);
+            border: 2px solid var(--laser-green);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 600px;
+            margin: 2rem;
+            box-shadow: 0 0 30px rgba(0, 255, 127, 0.3);
+            animation: successPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 127, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(0, 255, 127, 0.5); }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .success-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--laser-green);
+            margin: 0 0 1rem 0;
+            text-shadow: 0 0 20px rgba(0, 255, 127, 0.5);
+        }
+
+        .success-message {
+            font-size: 1.2rem;
+            color: var(--off-white);
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .features-list li {
+            padding: 0.5rem 0;
+            color: var(--off-white);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .features-list li::before {
+            content: '🚀';
+            font-size: 1.2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            color: var(--deep-charcoal);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 127, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--vibrant-cyan);
+            color: var(--off-white);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--laser-green);
+            color: var(--laser-green);
+        }
+
+        .session-info {
+            background: var(--deep-charcoal);
+            border: 1px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--off-white);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .success-container {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            
+            .success-title {
+                font-size: 2rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="success-page">
+    <div class="success-container">
+        <div class="success-icon">🎉</div>
+        <h1 class="success-title">Welcome to Pro!</h1>
+        <p class="success-message">
+            Congratulations! You've successfully upgraded to Trove Pro. 
+            You now have access to unlimited collections, custom templates, and advanced features.
+        </p>
+
+        <ul class="features-list">
+            <li>Create unlimited collections</li>
+            <li>Build custom templates</li>
+            <li>Advanced search & filtering</li>
+            <li>Priority support</li>
+            <li>Template Library access</li>
+        </ul>
+
+        <div class="cta-buttons">
+            <a href="app.html" class="btn btn-primary">Start Collecting</a>
+            <a href="template-builder.html" class="btn btn-secondary">Create Templates</a>
+        </div>
+
+        <div class="session-info" id="sessionInfo">
+            Session ID: Loading...
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Stripe Service -->
+    <script src="stripe-service.js"></script>
+    
+    <script>
+        // Check authentication state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+            }
+        });
+
+        // Get session ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        if (sessionId) {
+            document.getElementById('sessionInfo').textContent = `Session ID: ${sessionId}`;
+        }
+
+        // Track successful upgrade
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user && sessionId) {
+                try {
+                    // Update user's subscription status
+                    const subscription = await stripeService.getSubscription(user.uid);
+                    console.log('User subscription updated:', subscription);
+                    
+                    // You could also send analytics here
+                    console.log('User successfully upgraded to Pro plan');
+                } catch (error) {
+                    console.error('Error updating subscription:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

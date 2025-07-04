@@ -315,8 +315,8 @@
     <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
     
-    <!-- Subscription Management -->
-    <script src="subscription.js"></script>
+    <!-- Stripe Service -->
+    <script src="stripe-service.js"></script>
     
     <script>
         // Check authentication state
@@ -339,11 +339,22 @@
                     return;
                 }
 
-                // For demo purposes, simulate upgrade
-                if (confirm('Upgrade to Pro plan for $9.99/month? (Demo mode - no payment required)')) {
-                    await subscriptionManager.upgradeUser(user.uid, 'pro');
-                    alert('Successfully upgraded to Pro! You now have access to Template Builder and unlimited collections.');
-                    window.location.href = 'app.html';
+                // Show loading state
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Processing...';
+                button.disabled = true;
+
+                try {
+                    await stripeService.subscribeToPlan(user.uid, 'pro');
+                    // Stripe will redirect to success page, so we don't need to handle it here
+                } catch (error) {
+                    console.error('Error upgrading to Pro:', error);
+                    alert('Failed to start checkout. Please try again.');
+                    
+                    // Reset button
+                    button.textContent = originalText;
+                    button.disabled = false;
                 }
             } catch (error) {
                 console.error('Error upgrading:', error);
@@ -359,11 +370,22 @@
                     return;
                 }
 
-                // For demo purposes, simulate upgrade
-                if (confirm('Upgrade to Patron plan for $29.99/month? (Demo mode - no payment required)')) {
-                    await subscriptionManager.upgradeUser(user.uid, 'patron');
-                    alert('Successfully upgraded to Patron! You now have access to all features and priority support.');
-                    window.location.href = 'app.html';
+                // Show loading state
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Processing...';
+                button.disabled = true;
+
+                try {
+                    await stripeService.subscribeToPlan(user.uid, 'patron');
+                    // Stripe will redirect to success page, so we don't need to handle it here
+                } catch (error) {
+                    console.error('Error upgrading to Patron:', error);
+                    alert('Failed to start checkout. Please try again.');
+                    
+                    // Reset button
+                    button.textContent = originalText;
+                    button.disabled = false;
                 }
             } catch (error) {
                 console.error('Error upgrading:', error);
