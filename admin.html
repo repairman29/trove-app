@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trove Admin Panel - Template Builder</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        /* Admin Panel Specific Styles */
+        .admin-header {
+            background: linear-gradient(135deg, var(--electric-magenta), var(--laser-green));
+            padding: 20px 0;
+            border-bottom: 2px solid var(--border-cyan);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .admin-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-dark);
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+        }
+        
+        .admin-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid var(--electric-magenta);
+            color: var(--electric-magenta);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .admin-tab.active {
+            background: var(--electric-magenta);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--glow-magenta);
+        }
+        
+        .admin-tab:hover:not(.active) {
+            background: rgba(255, 20, 147, 0.1);
+            box-shadow: 0 0 15px var(--glow-magenta);
+        }
+        
+        .admin-content {
+            display: none;
+        }
+        
+        .admin-content.active {
+            display: block;
+        }
+        
+        /* Template Builder Styles */
+        .template-builder {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .builder-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-cyan);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .builder-section h3 {
+            color: var(--laser-green);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px var(--glow-green);
+        }
+        
+        .template-form {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+        
+        .icon-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .icon-option {
+            padding: 15px;
+            border: 2px solid var(--border-cyan);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+        }
+        
+        .icon-option:hover {
+            border-color: var(--electric-magenta);
+            box-shadow: 0 0 15px var(--glow-magenta);
+        }
+        
+        .icon-option.selected {
+            border-color: var(--laser-green);
+            background: rgba(0, 255, 127, 0.1);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+        
+        /* Attribute Builder Styles */
+        .attribute-builder {
+            margin-top: 40px;
+        }
+        
+        .attributes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .attribute-item {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-cyan);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .attribute-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .attribute-title {
+            color: var(--cyan);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .attribute-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        
+        .attribute-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .predefined-values {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .predefined-values.show {
+            display: block;
+        }
+        
+        .tags-input {
+            position: relative;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            background: var(--electric-magenta);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .add-attribute-btn {
+            width: 100%;
+            padding: 20px;
+            border: 2px dashed var(--border-cyan);
+            background: transparent;
+            color: var(--cyan);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .add-attribute-btn:hover {
+            border-color: var(--laser-green);
+            color: var(--laser-green);
+            box-shadow: 0 0 15px var(--glow-green);
+        }
+        
+        .template-preview {
+            background: var(--bg-card);
+            border: 1px solid var(--border-cyan);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .preview-form {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .template-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-cyan);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px var(--glow-cyan);
+        }
+        
+        .template-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .template-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, var(--laser-green), var(--cyan));
+            border-radius: 50%;
+            color: var(--bg-dark);
+        }
+        
+        .template-info h4 {
+            color: var(--text-primary);
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+        
+        .template-info p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        
+        .template-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-cyan);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, var(--laser-green), var(--cyan));
+            color: var(--bg-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #ff4444, #ff8888);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <nav class="admin-nav">
+                <div class="admin-logo">🏺 Trove Admin</div>
+                <div class="user-info">
+                    <span id="adminUserName">Administrator</span>
+                    <button class="btn btn-secondary" onclick="returnToDashboard()">← Back to Dashboard</button>
+                    <button class="btn btn-outline" onclick="handleLogout()">Logout</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Admin Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchTab('builder')">Template Builder</button>
+            <button class="admin-tab" onclick="switchTab('manage')">Manage Templates</button>
+            <button class="admin-tab" onclick="switchTab('analytics')">Analytics</button>
+        </div>
+
+        <!-- Template Builder Tab -->
+        <div id="builder" class="admin-content active">
+            <div class="template-builder">
+                <div class="success-message" id="successMessage"></div>
+                <div class="error-message" id="errorMessage"></div>
+                
+                <!-- Step 1: Basic Template Info -->
+                <div class="builder-section">
+                    <h3>📝 Step 1: Template Information</h3>
+                    <form id="templateForm" class="template-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="templateName">Template Name *</label>
+                                <input type="text" id="templateName" class="form-input" placeholder="e.g., Comic Books" required>
+                                <small class="form-help">A clear, descriptive name for your template</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="templateDescription">Description *</label>
+                                <input type="text" id="templateDescription" class="form-input" placeholder="Brief description of this collection type" required>
+                                <small class="form-help">Explain what this template is used for</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label class="form-label">Template Icon *</label>
+                                <div class="icon-selector">
+                                    <div class="icon-option" data-icon="📚">📚</div>
+                                    <div class="icon-option" data-icon="🎮">🎮</div>
+                                    <div class="icon-option" data-icon="🎵">🎵</div>
+                                    <div class="icon-option" data-icon="🎬">🎬</div>
+                                    <div class="icon-option" data-icon="🎨">🎨</div>
+                                    <div class="icon-option" data-icon="⚽">⚽</div>
+                                    <div class="icon-option" data-icon="🚗">🚗</div>
+                                    <div class="icon-option" data-icon="🧸">🧸</div>
+                                    <div class="icon-option" data-icon="💎">💎</div>
+                                    <div class="icon-option" data-icon="🏺">🏺</div>
+                                    <div class="icon-option" data-icon="📱">📱</div>
+                                    <div class="icon-option" data-icon="👕">👕</div>
+                                    <div class="icon-option" data-icon="🎯">🎯</div>
+                                    <div class="icon-option" data-icon="🔧">🔧</div>
+                                    <div class="icon-option" data-icon="💰">💰</div>
+                                    <div class="icon-option" data-icon="🌟">🌟</div>
+                                </div>
+                                <small class="form-help">Select an icon to represent this collection type</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Attribute Builder -->
+                <div class="builder-section attribute-builder">
+                    <h3>⚙️ Step 2: Define Attributes</h3>
+                    <p class="text-secondary">Create custom fields that users will fill out for each item in this collection type.</p>
+                    
+                    <div class="attributes-list" id="attributesList">
+                        <!-- Attributes will be dynamically added here -->
+                    </div>
+                    
+                    <button type="button" class="add-attribute-btn" onclick="addAttribute()">
+                        + Add New Attribute
+                    </button>
+                </div>
+
+                <!-- Step 3: Preview -->
+                <div class="builder-section template-preview">
+                    <h3>👁️ Step 3: Preview</h3>
+                    <p class="text-secondary">See how your template will look to users when they create items.</p>
+                    
+                    <div class="preview-form" id="previewForm">
+                        <div class="form-group">
+                            <label class="form-label">Item Name *</label>
+                            <input type="text" class="form-input" placeholder="Required field for all items" disabled>
+                        </div>
+                        <!-- Dynamic preview fields will be added here -->
+                    </div>
+                </div>
+
+                <!-- Save Template -->
+                <div class="builder-section">
+                    <div class="form-row">
+                        <button type="button" class="btn btn-secondary" onclick="previewTemplate()">🔄 Update Preview</button>
+                        <button type="button" class="btn btn-primary" onclick="saveTemplate()">💾 Save Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Templates Tab -->
+        <div id="manage" class="admin-content">
+            <div class="builder-section">
+                <h3>📋 Manage Templates</h3>
+                <p class="text-secondary">View, edit, and delete existing templates.</p>
+                
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="admin-content">
+            <div class="builder-section">
+                <h3>📊 Template Analytics</h3>
+                <p class="text-secondary">See how your templates are being used across the platform.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTemplates">0</div>
+                        <div class="stat-label">Total Templates</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCollections">0</div>
+                        <div class="stat-label">Collections Created</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="mostUsedTemplate">-</div>
+                        <div class="stat-label">Most Popular Template</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Template Builder Script -->
+    <script src="template-builder.js"></script>
+    
+    <!-- Demo Setup Script -->
+    <script src="setup-demo-admin.js"></script>
+    
+    <script>
+        // Check authentication and admin privileges
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                // Check if user has admin privileges
+                const isAdmin = await checkAdminPrivileges(user);
+                if (!isAdmin) {
+                    alert('Access denied. Administrator privileges required.');
+                    window.location.href = 'app.html';
+                    return;
+                }
+                
+                updateUserInfo(user);
+                loadTemplates();
+                loadAnalytics();
+            } else {
+                window.location.href = 'auth.html';
+            }
+        });
+
+        function updateUserInfo(user) {
+            const userNameElement = document.getElementById('adminUserName');
+            if (userNameElement) {
+                userNameElement.textContent = user.displayName || user.email || 'Administrator';
+            }
+        }
+
+        async function checkAdminPrivileges(user) {
+            try {
+                // Check if user has admin role in Firestore
+                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    return userData.role === 'admin' || userData.role === 'support';
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking admin privileges:', error);
+                return false;
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.admin-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content and activate tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load content based on tab
+            if (tabName === 'manage') {
+                loadTemplates();
+            } else if (tabName === 'analytics') {
+                loadAnalytics();
+            }
+        }
+
+        function returnToDashboard() {
+            window.location.href = 'app.html';
+        }
+
+        async function handleLogout() {
+            try {
+                await firebase.auth().signOut();
+            } catch (error) {
+                console.error('Error signing out:', error);
+                alert('Error signing out. Please try again.');
+            }
+        }
+
+        // Initialize icon selection
+        document.querySelectorAll('.icon-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

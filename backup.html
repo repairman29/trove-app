@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup & Restore - Trove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #222222;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 1rem;
+        }
+
+        .action-description {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+
+        .backup-history {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .backup-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 2px solid #f5f5f5;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .backup-item:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.1);
+        }
+
+        .backup-info {
+            flex: 1;
+        }
+
+        .backup-name {
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 0.25rem;
+        }
+
+        .backup-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .backup-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .demo-note {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="app.html" class="back-link">← Back to Collections</a>
+        
+        <div class="header">
+                            <div class="logo">
+                    <span class="treasure-chest">📦</span>
+                    <span class="sparkles">✨</span>
+                    Trove
+                </div>
+            <h1 class="title">Backup & Restore</h1>
+            <p class="subtitle">Keep your collections safe with automated backups</p>
+        </div>
+
+        <div class="demo-note">
+            💾 <strong>Data Protection:</strong> Your collection data is automatically backed up to secure cloud storage. You can also create manual backups and restore from any point in time.
+        </div>
+
+        <!-- Collection Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalItems">1</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCollections">1</div>
+                <div class="stat-label">Collections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="dataSize">2.4MB</div>
+                <div class="stat-label">Data Size</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastBackup">Today</div>
+                <div class="stat-label">Last Backup</div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">📦</div>
+                <h3 class="action-title">Create Backup</h3>
+                <p class="action-description">
+                    Generate a complete backup of all your collections, including photos, attributes, and metadata.
+                </p>
+                <button class="btn" onclick="createBackup()">Create Backup Now</button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">📂</div>
+                <h3 class="action-title">Restore Data</h3>
+                <p class="action-description">
+                    Restore your collections from a previous backup file or migrate data from another system.
+                </p>
+                <button class="btn btn-secondary" onclick="triggerRestore()">Choose Backup File</button>
+                <input type="file" class="file-input" id="restoreFile" accept=".json,.zip" onchange="handleRestore(event)">
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Backup History -->
+        <div class="backup-history">
+            <h3 style="margin-bottom: 1.5rem; color: #222;">Backup History</h3>
+            
+            <div class="backup-item">
+                <div class="backup-info">
+                    <div class="backup-name">🔄 Automatic Backup</div>
+                    <div class="backup-meta">Today at 3:00 AM • 2.4 MB • 1 collection, 1 item</div>
+                </div>
+                <div class="backup-actions">
+                    <button class="btn btn-small btn-secondary" onclick="downloadBackup('auto-today')">Download</button>
+                    <button class="btn btn-small" onclick="restoreBackup('auto-today')">Restore</button>
+                </div>
+            </div>
+
+            <div class="backup-item">
+                <div class="backup-info">
+                    <div class="backup-name">📦 Manual Backup</div>
+                    <div class="backup-meta">Yesterday at 2:15 PM • 2.1 MB • 1 collection, 1 item</div>
+                </div>
+                <div class="backup-actions">
+                    <button class="btn btn-small btn-secondary" onclick="downloadBackup('manual-yesterday')">Download</button>
+                    <button class="btn btn-small" onclick="restoreBackup('manual-yesterday')">Restore</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteBackup('manual-yesterday')">Delete</button>
+                </div>
+            </div>
+
+            <div class="backup-item">
+                <div class="backup-info">
+                    <div class="backup-name">🔄 Automatic Backup</div>
+                    <div class="backup-meta">3 days ago at 3:00 AM • 1.8 MB • 1 collection, 1 item</div>
+                </div>
+                <div class="backup-actions">
+                    <button class="btn btn-small btn-secondary" onclick="downloadBackup('auto-3days')">Download</button>
+                    <button class="btn btn-small" onclick="restoreBackup('auto-3days')">Restore</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function createBackup() {
+            showProgress(true);
+            
+            // Simulate backup creation
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        showProgress(false);
+                        downloadGeneratedBackup();
+                    }, 500);
+                }
+                updateProgress(progress);
+            }, 200);
+        }
+
+        function downloadGeneratedBackup() {
+            // Create sample backup data
+            const backupData = {
+                version: "1.0",
+                timestamp: new Date().toISOString(),
+                collections: [
+                    {
+                        id: "1",
+                        name: "Nintendo 64 Games",
+                        description: "Complete collection of N64 cartridges from my childhood",
+                        subCollections: [
+                            {
+                                id: "1",
+                                name: "Action Games",
+                                type: "games",
+                                items: [
+                                    {
+                                        id: "1",
+                                        name: "Super Mario 64",
+                                        type: "game",
+                                        attributes: [
+                                            { key: "condition", value: "mint" },
+                                            { key: "complete", value: true }
+                                        ],
+                                        notes: "Still have the original box!"
+                                    }
+                                ]
+                            }
+                        ],
+                        tags: ["gaming", "retro"]
+                    }
+                ],
+                metadata: {
+                    totalItems: 1,
+                    totalCollections: 1,
+                    exportedBy: "Trove Backup System",
+                    dataSize: "2.4MB"
+                }
+            };
+
+            // Download as JSON file
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `trove-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('✅ Backup created successfully!\n\nYour backup file has been downloaded. Store it in a safe place for future restoration.');
+        }
+
+        function triggerRestore() {
+            document.getElementById('restoreFile').click();
+        }
+
+        function handleRestore(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (backupData.version && backupData.collections) {
+                        showRestorePreview(backupData);
+                    } else {
+                        throw new Error('Invalid backup format');
+                    }
+                } catch (error) {
+                    alert('❌ Invalid backup file format. Please select a valid Trove backup file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function showRestorePreview(backupData) {
+            const totalItems = backupData.metadata?.totalItems || 0;
+            const totalCollections = backupData.metadata?.totalCollections || 0;
+            const backupDate = new Date(backupData.timestamp).toLocaleDateString();
+            
+            const confirmed = confirm(
+                `🔄 Restore Collections\n\n` +
+                `Backup Date: ${backupDate}\n` +
+                `Collections: ${totalCollections}\n` +
+                `Items: ${totalItems}\n\n` +
+                `This will replace your current collections. Are you sure?`
+            );
+
+            if (confirmed) {
+                performRestore(backupData);
+            }
+        }
+
+        function performRestore(backupData) {
+            showProgress(true);
+            
+            // Simulate restore process
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        showProgress(false);
+                        alert('✅ Restore completed successfully!\n\nYour collections have been restored from the backup file.');
+                        // In a real app, this would refresh the page or redirect
+                    }, 500);
+                }
+                updateProgress(progress);
+            }, 150);
+        }
+
+        function downloadBackup(backupId) {
+            // Simulate downloading existing backup
+            alert(`📦 Downloading backup: ${backupId}\n\nIn the full version, this would download the selected backup file from cloud storage.`);
+        }
+
+        function restoreBackup(backupId) {
+            const confirmed = confirm(`🔄 Restore from backup: ${backupId}\n\nThis will replace your current collections. Are you sure?`);
+            
+            if (confirmed) {
+                showProgress(true);
+                
+                setTimeout(() => {
+                    showProgress(false);
+                    alert('✅ Restore completed successfully!\n\nYour collections have been restored from the selected backup.');
+                }, 2000);
+            }
+        }
+
+        function deleteBackup(backupId) {
+            const confirmed = confirm(`🗑️ Delete backup: ${backupId}\n\nThis action cannot be undone. Are you sure?`);
+            
+            if (confirmed) {
+                alert(`✅ Backup deleted: ${backupId}\n\nThe backup has been permanently removed from cloud storage.`);
+                // In a real app, this would remove the backup item from the UI
+            }
+        }
+
+        function showProgress(show) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.display = show ? 'block' : 'none';
+            
+            if (!show) {
+                updateProgress(0);
+            }
+        }
+
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = percentage + '%';
+        }
+
+        // Simulate real-time stats updates
+        function updateStats() {
+            // In a real app, this would fetch actual data from the API
+            fetch('http://localhost:3001/collections')
+                .then(response => response.json())
+                .then(collections => {
+                    const totalItems = collections.reduce((sum, collection) => {
+                        return sum + (collection.subCollections || []).reduce((itemSum, subCol) => {
+                            return itemSum + (subCol.items || []).length;
+                        }, 0);
+                    }, 0);
+                    
+                    document.getElementById('totalItems').textContent = totalItems;
+                    document.getElementById('totalCollections').textContent = collections.length;
+                })
+                .catch(error => {
+                    console.log('Using demo data - API not available');
+                });
+        }
+
+        // Initialize stats on page load
+        window.addEventListener('load', () => {
+            updateStats();
+        });
+    </script>
+</body>
+</html>

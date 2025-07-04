@@ -1,0 +1,430 @@
+// Firebase Configuration for Trove Application
+// This file contains the Firebase setup for authentication and Firestore
+
+// ⚠️ IMPORTANT: Replace these placeholder values with your actual Firebase project config
+// Get your config from Firebase Console > Project Settings > General > Your apps > Web app
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY_HERE", // Get from Firebase Console
+  authDomain: "collectors-hub-app-464902.firebaseapp.com",
+  projectId: "collectors-hub-app-464902",
+  storageBucket: "collectors-hub-app-464902.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID", // Get from Firebase Console
+  appId: "YOUR_APP_ID" // Get from Firebase Console
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Initialize Firebase services
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Tier configuration
+const TIER_LIMITS = {
+  free: {
+    maxCollections: 3,
+    maxItemsPerCollection: 50,
+    maxTotalItems: 150,
+    maxPhotosPerItem: 5,
+    maxStorageMB: 100
+  },
+  pro: {
+    maxCollections: 25,
+    maxItemsPerCollection: 1000,
+    maxTotalItems: 25000,
+    maxPhotosPerItem: 20,
+    maxStorageMB: 2048
+  },
+  enterprise: {
+    maxCollections: -1, // unlimited
+    maxItemsPerCollection: -1, // unlimited
+    maxTotalItems: -1, // unlimited
+    maxPhotosPerItem: -1, // unlimited
+    maxStorageMB: 51200 // 50GB
+  }
+};
+
+// Auth state observer
+let currentUser = null;
+
+auth.onAuthStateChanged((user) => {
+  currentUser = user;
+  if (user) {
+    console.log('🏺 User signed in:', user.displayName || user.email);
+    // Initialize user profile if needed
+    initializeUserProfile(user);
+    
+    // Update UI for authenticated state
+    updateAuthUI(user);
+  } else {
+    console.log('🏺 User signed out');
+    // Redirect to auth page if on protected pages
+    if (window.location.pathname.includes('app.html')) {
+      window.location.href = 'auth.html';
+    }
+  }
+});
+
+// Update UI based on authentication state
+function updateAuthUI(user) {
+  // Update user info in dashboard
+  const userInfo = document.querySelector('.user-info');
+  if (userInfo) {
+    userInfo.innerHTML = `
+      <span class="text-secondary">Welcome back, ${user.displayName || 'Collector'}!</span>
+      <div class="user-avatar" onclick="showUserMenu()">
+        ${user.photoURL ? `<img src="${user.photoURL}" alt="Avatar">` : '👤'}
+      </div>
+    `;
+  }
+  
+  // Load user's collections
+  if (window.location.pathname.includes('app.html')) {
+    loadUserCollections();
+  }
+}
+
+// Initialize user profile in Firestore
+async function initializeUserProfile(user) {
+  try {
+    const userRef = db.collection('users').doc(user.uid);
+    const userDoc = await userRef.get();
+    
+    if (!userDoc.exists) {
+      // Create new user profile
+      const newUserData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || 'Collector',
+        photoURL: user.photoURL || null,
+        tier: 'free',
+        subscription: {
+          status: 'active',
+          currentPeriodEnd: null,
+          stripeCustomerId: null
+        },
+        usage: {
+          collections: 0,
+          totalItems: 0,
+          storageUsed: 0,
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        },
+        preferences: {
+          theme: 'neon-arcade',
+          notifications: true,
+          privacy: 'private'
+        },
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      await userRef.set(newUserData);
+      console.log('🏺 New user profile created');
+      
+      // Show welcome message for new users
+      showWelcomeMessage();
+    } else {
+      // Update last login
+      await userRef.update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      console.log('🏺 User profile updated');
+    }
+  } catch (error) {
+    console.error('❌ Error initializing user profile:', error);
+    showErrorMessage('Failed to initialize user profile. Please try again.');
+  }
+}
+
+// Show welcome message for new users
+function showWelcomeMessage() {
+  const welcomeHTML = `
+    <div class="welcome-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.95); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+      <div class="welcome-card" style="background: var(--bg-card); padding: 40px; border-radius: 16px; text-align: center; max-width: 500px; border: 1px solid var(--border-cyan);">
+        <div style="font-size: 3rem; margin-bottom: 20px;"><span class="sonic-ring">⭕</span></div>
+        <h2 style="color: var(--laser-green); margin-bottom: 20px;">Welcome to Trove!</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">You're all set up with a free account. Start by creating your first collection!</p>
+        <button class="btn btn-primary" onclick="closeWelcomeMessage()">Get Started</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', welcomeHTML);
+}
+
+function closeWelcomeMessage() {
+  const overlay = document.querySelector('.welcome-overlay');
+  if (overlay) overlay.remove();
+}
+
+// Get current user's tier and limits
+async function getUserTierInfo() {
+  if (!currentUser) return null;
+  
+  try {
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      return {
+        tier: userData.tier,
+        limits: TIER_LIMITS[userData.tier],
+        usage: userData.usage
+      };
+    }
+  } catch (error) {
+    console.error('❌ Error getting user tier info:', error);
+  }
+  return null;
+}
+
+// Check if user can perform an operation based on their tier limits
+async function checkUserLimits(operation, additionalData = {}) {
+  const tierInfo = await getUserTierInfo();
+  if (!tierInfo) return false;
+  
+  const { limits, usage } = tierInfo;
+  
+  switch (operation) {
+    case 'CREATE_COLLECTION':
+      if (limits.maxCollections === -1) return true;
+      return usage.collections < limits.maxCollections;
+    
+    case 'ADD_ITEM':
+      const collectionId = additionalData.collectionId;
+      if (limits.maxTotalItems !== -1 && usage.totalItems >= limits.maxTotalItems) {
+        return false;
+      }
+      
+      // Check items per collection limit
+      if (limits.maxItemsPerCollection !== -1 && collectionId) {
+        const collectionDoc = await db.collection('collections').doc(collectionId).get();
+        if (collectionDoc.exists) {
+          const itemCount = collectionDoc.data().itemCount || 0;
+          return itemCount < limits.maxItemsPerCollection;
+        }
+      }
+      return true;
+    
+    case 'UPLOAD_PHOTO':
+      const fileSizeMB = additionalData.fileSizeMB || 0;
+      if (limits.maxStorageMB === -1) return true;
+      return (usage.storageUsed + fileSizeMB) <= limits.maxStorageMB;
+    
+    default:
+      return true;
+  }
+}
+
+// Update user usage statistics
+async function updateUserUsage(updates) {
+  if (!currentUser) return;
+  
+  try {
+    const userRef = db.collection('users').doc(currentUser.uid);
+    await userRef.update({
+      'usage.lastUpdated': firebase.firestore.FieldValue.serverTimestamp(),
+      ...Object.fromEntries(
+        Object.entries(updates).map(([key, value]) => [`usage.${key}`, value])
+      )
+    });
+  } catch (error) {
+    console.error('❌ Error updating user usage:', error);
+  }
+}
+
+// Load user's collections from Firestore
+async function loadUserCollections() {
+  if (!currentUser) return;
+  
+  try {
+    const collectionsRef = db.collection('collections');
+    const snapshot = await collectionsRef.where('userId', '==', currentUser.uid).get();
+    
+    const collections = [];
+    snapshot.forEach(doc => {
+      collections.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    // Update the collections grid
+    updateCollectionsGrid(collections);
+    
+    // Update usage statistics
+    updateUsageStats(collections);
+    
+  } catch (error) {
+    console.error('❌ Error loading collections:', error);
+    showErrorMessage('Failed to load your collections. Please refresh the page.');
+  }
+}
+
+// Update collections grid in the UI
+function updateCollectionsGrid(collections) {
+  const grid = document.querySelector('.collections-grid');
+  if (!grid) return;
+  
+  if (collections.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">📦</div>
+        <h3 style="color: var(--text-primary); margin-bottom: 10px;">No collections yet</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">Create your first collection to get started!</p>
+        <button class="btn btn-primary" onclick="openCreateCollectionModal()">Create Collection</button>
+      </div>
+    `;
+    return;
+  }
+  
+  grid.innerHTML = collections.map(collection => `
+    <div class="collection-card" onclick="openCollection('${collection.id}')">
+      <div class="collection-image">
+        ${collection.coverImage ? `<img src="${collection.coverImage}" alt="${collection.name}">` : '📦'}
+      </div>
+      <div class="collection-info">
+        <h3>${collection.name}</h3>
+        <p>${collection.description || 'No description'}</p>
+        <div class="collection-stats">
+          <span>${collection.itemCount || 0} items</span>
+          <span>$${collection.estimatedValue || 0}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Update usage statistics in the UI
+function updateUsageStats(collections) {
+  const totalItems = collections.reduce((sum, col) => sum + (col.itemCount || 0), 0);
+  const totalValue = collections.reduce((sum, col) => sum + (col.estimatedValue || 0), 0);
+  
+  // Update stats cards
+  const statsCards = document.querySelectorAll('.stat-card');
+  if (statsCards.length >= 3) {
+    statsCards[0].querySelector('.stat-value').textContent = collections.length;
+    statsCards[1].querySelector('.stat-value').textContent = totalItems;
+    statsCards[2].querySelector('.stat-value').textContent = `$${totalValue.toLocaleString()}`;
+  }
+}
+
+// Show error message to user
+function showErrorMessage(message) {
+  const errorHTML = `
+    <div class="error-toast" style="position: fixed; top: 20px; right: 20px; background: #ff4444; color: white; padding: 15px 20px; border-radius: 8px; z-index: 1000;">
+      ${message}
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', errorHTML);
+  
+  setTimeout(() => {
+    const toast = document.querySelector('.error-toast');
+    if (toast) toast.remove();
+  }, 5000);
+}
+
+// Utility functions for auth
+const AuthUtils = {
+  // Sign in with Google
+  async signInWithGoogle() {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
+      
+      const result = await auth.signInWithPopup(provider);
+      return { success: true, user: result.user };
+    } catch (error) {
+      console.error('❌ Google sign-in error:', error);
+      return { success: false, error: this.getErrorMessage(error.code) };
+    }
+  },
+  
+  // Sign in with email and password
+  async signInWithEmail(email, password) {
+    try {
+      const result = await auth.signInWithEmailAndPassword(email, password);
+      return { success: true, user: result.user };
+    } catch (error) {
+      console.error('❌ Email sign-in error:', error);
+      return { success: false, error: this.getErrorMessage(error.code) };
+    }
+  },
+  
+  // Create account with email and password
+  async createAccount(email, password, displayName) {
+    try {
+      const result = await auth.createUserWithEmailAndPassword(email, password);
+      
+      // Update user profile with display name
+      if (displayName) {
+        await result.user.updateProfile({
+          displayName: displayName
+        });
+      }
+      
+      return { success: true, user: result.user };
+    } catch (error) {
+      console.error('❌ Account creation error:', error);
+      return { success: false, error: this.getErrorMessage(error.code) };
+    }
+  },
+  
+  // Reset password
+  async resetPassword(email) {
+    try {
+      await auth.sendPasswordResetEmail(email);
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Password reset error:', error);
+      return { success: false, error: this.getErrorMessage(error.code) };
+    }
+  },
+  
+  // Sign out
+  async signOut() {
+    try {
+      await auth.signOut();
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Sign out error:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Get user-friendly error messages
+  getErrorMessage(errorCode) {
+    const errorMessages = {
+      'auth/user-not-found': 'No account found with this email address.',
+      'auth/wrong-password': 'Incorrect password. Please try again.',
+      'auth/email-already-in-use': 'An account with this email already exists.',
+      'auth/weak-password': 'Password should be at least 6 characters long.',
+      'auth/invalid-email': 'Please enter a valid email address.',
+      'auth/user-disabled': 'This account has been disabled.',
+      'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+      'auth/popup-closed-by-user': 'Sign-in was cancelled.',
+      'auth/popup-blocked': 'Pop-up was blocked. Please allow pop-ups for this site.'
+    };
+    
+    return errorMessages[errorCode] || 'An error occurred. Please try again.';
+  },
+  
+  // Check if user is authenticated
+  isAuthenticated() {
+    return currentUser !== null;
+  },
+  
+  // Get current user
+  getCurrentUser() {
+    return currentUser;
+  }
+};
+
+// Export for use in other files
+window.AuthUtils = AuthUtils;
+window.checkUserLimits = checkUserLimits;
+window.updateUserUsage = updateUserUsage;
+window.getUserTierInfo = getUserTierInfo;
+window.TIER_LIMITS = TIER_LIMITS; 

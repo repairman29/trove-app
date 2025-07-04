@@ -1,0 +1,48 @@
+type User @table {
+  displayName: String!
+  createdAt: Timestamp!
+  email: String
+  photoUrl: String
+}
+
+type Collection @table {
+  name: String!
+  isPublic: Boolean!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  owner: User
+}
+
+type CollectibleItem @table {
+  name: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  condition: String
+  acquisitionDate: Date
+  estimatedValue: Float
+  quantity: Int
+  isForSale: Boolean
+  isWanted: Boolean
+  collection: Collection
+}
+
+type ItemPhoto @table {
+  url: String!
+  createdAt: Timestamp!
+  altText: String
+  isPrimary: Boolean
+  item: CollectibleItem
+}
+
+type Tag @table {
+  name: String!
+  createdAt: Timestamp!
+}
+
+type ItemTag @table(key: ["item", "tag"]) {
+  createdAt: Timestamp!
+  item: CollectibleItem!
+  tag: Tag!
+}

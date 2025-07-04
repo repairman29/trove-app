@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trove - Neon Arcade</title>
+    <style>
+        /* --- Google Fonts Import --- */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap');
+
+        /* --- Basic Setup & Typography --- */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #121212;
+            /* Subtle grid background */
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: #EAEAEA;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+        h1 { 
+            font-size: 3.5rem; 
+            margin-bottom: 1rem;
+            color: #00FF7F; /* Laser Green */
+            text-shadow: 0 0 10px rgba(0, 255, 127, 0.5), 0 0 20px rgba(0, 255, 127, 0.3);
+        }
+        h2 { 
+            font-size: 2.5rem; 
+            text-align: center; 
+            margin-bottom: 3rem;
+            color: #FF00FF; /* Electric Magenta */
+            text-shadow: 0 0 8px rgba(255, 0, 255, 0.5);
+        }
+        h3 {
+            color: #EAEAEA;
+        }
+        p { 
+            font-size: 1.1rem;
+            color: #A0A0A0;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(0, 255, 127, 0.5);
+        }
+        .btn-primary {
+            background-color: #00FF7F; /* Laser Green */
+            color: #121212;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #FF00FF; /* Electric Magenta */
+            border-color: #FF00FF;
+        }
+        .btn-secondary:hover {
+             box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: rgba(30, 30, 30, 0.8); /* Semi-transparent dark slate */
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2); /* Cyan border */
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #EAEAEA;
+        }
+        nav a {
+            color: #A0A0A0;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 600;
+        }
+        nav a:hover {
+            color: #00FFFF; /* Cyan */
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            padding: 100px 0;
+        }
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            font-size: 1.2rem;
+            color: #A0A0A0;
+        }
+        .hero .btn-secondary {
+            margin-left: 15px;
+        }
+
+        /* --- Sections & Cards --- */
+        section {
+            padding: 80px 0;
+            position: relative;
+        }
+        .value-props-grid, .features-grid {
+            display: grid;
+            gap: 30px;
+        }
+        .value-props-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .features-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .card {
+            background-color: #1E1E1E;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 255, 0.3); /* Cyan border */
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); /* Cyan glow */
+        }
+        .card .icon {
+            font-size: 2.5rem;
+            color: #00FFFF; /* Cyan */
+        }
+        .card h3 {
+            margin: 1rem 0;
+        }
+
+        /* --- Final CTA & Footer --- */
+        .final-cta {
+            text-align: center;
+            border-top: 1px solid rgba(255,0,255,0.2);
+            border-bottom: 1px solid rgba(255,0,255,0.2);
+        }
+        .final-cta h2 { color: #FF00FF; }
+        .final-cta p { margin-bottom: 30px; }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #A0A0A0;
+            font-size: 0.9rem;
+        }
+        footer a { color: #00FFFF; }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 900px) {
+            .value-props-grid, .features-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+                            <div class="logo">
+            <span class="treasure-chest">📦</span>
+            <span class="sparkles">✨</span>
+            Trove
+        </div>
+            <nav>
+                <a href="#features">Features</a>
+                <a href="#">About</a>
+                <a href="#">Pricing</a>
+            </nav>
+            <a href="auth.html" class="btn btn-primary">Sign Up for Free</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Your toys grew up.<br>Now they need a place to live.</h1>
+                <p>Remember the thrill of unboxing that Nintendo 64? The smell of a fresh pack of trading cards? Your collection is your story. Trove is your digital shelf—a modern, beautiful way to catalog, showcase, and play with the treasures that made you, you.</p>
+                <a href="auth.html" class="btn btn-primary">Start Your Collection</a>
+                <a href="#features" class="btn btn-secondary">See How It Works</a>
+            </div>
+        </section>
+
+        <section class="value-props">
+            <div class="container">
+                <h2>Finally, a toy box that fits your entire collection.</h2>
+                <div class="value-props-grid">
+                    <div class="card">
+                        <div class="icon">📊</div> <h3>Catalog Everything</h3>
+                        <p>Catalog everything from video game cartridges to action figures. Know what you have, what you've beaten, and what you're hunting for next.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🤖</div> <h3>AI-Powered Insights</h3>
+                        <p>Snap a photo and let our AI help you identify and tag your items. Spend less time typing and more time playing.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">👥</div> <h3>Showcase & Share</h3>
+                        <p>Showcase your collection with a stunning, shareable profile. Connect with fellow hobbyists and trade your duplicates.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="features">
+            <div class="container">
+                <h2>All Your Passions, Perfectly Organized.</h2>
+                <div class="features-grid">
+                    <div class="card">
+                        <h3>Custom Profiles</h3>
+                        <p>Create detailed profiles for each item with custom fields like "Condition," "High Score," and "Date Acquired."</p>
+                    </div>
+                    <div class="card">
+                        <h3>Powerful Search</h3>
+                        <p>Find exactly what you're looking for with intelligent search. "Find all my first-edition board games."</p>
+                    </div>
+                    <div class="card">
+                        <h3>Digital Shelves</h3>
+                        <p>Organize your collections visually with beautiful, customizable shelves. Group your Funko Pops separately.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Photo Management</h3>
+                        <p>Upload multiple high-quality shots for each item. Show off that pristine 24-year-old box.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Value Tracking</h3>
+                        <p>Keep track of your collection's worth with market value estimates and price history. Watch your investments grow!</p>
+                    </div>
+                    <div class="card">
+                        <h3>Social Sharing</h3>
+                        <p>Share your awesome finds with the community. Get likes, comments, and trade offers from fellow collectors.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div class="container">
+                <h2>Ready to Play?</h2>
+                <p>Stop digging through boxes. Start building your legacy.</p>
+                <a href="auth.html" class="btn btn-primary">Create Your Free Trove</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Trove. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>

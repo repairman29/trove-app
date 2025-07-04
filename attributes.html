@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Attributes - Trove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #222222;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .attribute-editor {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .attribute-item {
+            display: grid;
+            grid-template-columns: 200px 150px 1fr auto;
+            gap: 1rem;
+            align-items: start;
+            padding: 1rem;
+            border: 2px solid #f5f5f5;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .attribute-item:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-input {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .form-select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-secondary {
+            background: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .add-attribute-btn {
+            width: 100%;
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 2px dashed #1976d2;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .add-attribute-btn:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+        }
+
+        .attribute-type-icon {
+            display: inline-block;
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .validation-rules {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .validation-rule {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .demo-note {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .preview-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-label {
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-value {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .attribute-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .template-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .template-title {
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="app.html" class="back-link">← Back to Collections</a>
+        
+        <div class="header">
+                            <div class="logo">
+                    <span class="treasure-chest">📦</span>
+                    <span class="sparkles">✨</span>
+                    Trove
+                </div>
+            <h1 class="title">Advanced Attributes</h1>
+            <p class="subtitle">Create rich, structured data for your collectibles</p>
+        </div>
+
+        <div class="demo-note">
+            ⚡ <strong>Smart Attributes:</strong> Build custom attribute schemas with validation, data types, and templates for different collection types.
+        </div>
+
+        <!-- Attribute Templates -->
+        <h3 style="margin-bottom: 1rem; color: #222;">Quick Templates</h3>
+        <div class="attribute-templates">
+            <div class="template-card" onclick="loadTemplate('gaming')">
+                <div class="template-icon">🎮</div>
+                <div class="template-title">Gaming Items</div>
+                <div class="template-description">Condition, Platform, Year, Complete in Box</div>
+            </div>
+            <div class="template-card" onclick="loadTemplate('figures')">
+                <div class="template-icon">🦸‍♂️</div>
+                <div class="template-title">Action Figures</div>
+                <div class="template-description">Scale, Manufacturer, Series, Articulation</div>
+            </div>
+            <div class="template-card" onclick="loadTemplate('cards')">
+                <div class="template-icon">⚡</div>
+                <div class="template-title">Trading Cards</div>
+                <div class="template-description">Set, Rarity, Condition, Graded</div>
+            </div>
+            <div class="template-card" onclick="loadTemplate('custom')">
+                <div class="template-icon">🛠️</div>
+                <div class="template-title">Custom Schema</div>
+                <div class="template-description">Build your own attribute structure</div>
+            </div>
+        </div>
+
+        <!-- Attribute Editor -->
+        <div class="attribute-editor">
+            <h3 style="margin-bottom: 1.5rem; color: #222;">Attribute Schema</h3>
+            
+            <div id="attributesList">
+                <!-- Attributes will be added here dynamically -->
+            </div>
+
+            <button class="add-attribute-btn" onclick="addAttribute()">
+                ➕ Add New Attribute
+            </button>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <h3 style="margin-bottom: 1.5rem; color: #222;">Preview</h3>
+            <div id="previewArea">
+                <p style="color: #666; text-align: center; padding: 2rem;">
+                    Add attributes above to see how they'll appear in your collection items
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn" onclick="saveSchema()">Save Schema</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+        </div>
+    </div>
+
+    <script>
+        let attributes = [];
+        let attributeCounter = 0;
+
+        const attributeTypes = {
+            'text': { icon: '📝', name: 'Text' },
+            'number': { icon: '🔢', name: 'Number' },
+            'boolean': { icon: '☑️', name: 'Yes/No' },
+            'date': { icon: '📅', name: 'Date' },
+            'select': { icon: '📋', name: 'Dropdown' },
+            'rating': { icon: '⭐', name: 'Rating' },
+            'url': { icon: '🔗', name: 'URL' },
+            'currency': { icon: '💰', name: 'Currency' }
+        };
+
+        const templates = {
+            gaming: [
+                { name: 'Condition', type: 'select', options: ['Mint', 'Near Mint', 'Good', 'Fair', 'Poor'], required: true },
+                { name: 'Platform', type: 'text', required: true },
+                { name: 'Release Year', type: 'number', required: false },
+                { name: 'Complete in Box', type: 'boolean', required: false },
+                { name: 'Purchase Price', type: 'currency', required: false }
+            ],
+            figures: [
+                { name: 'Scale', type: 'select', options: ['1:6', '1:12', '6 inch', '12 inch', 'Other'], required: false },
+                { name: 'Manufacturer', type: 'text', required: true },
+                { name: 'Series', type: 'text', required: false },
+                { name: 'Articulation Points', type: 'number', required: false },
+                { name: 'Condition', type: 'rating', required: true }
+            ],
+            cards: [
+                { name: 'Set', type: 'text', required: true },
+                { name: 'Rarity', type: 'select', options: ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Secret'], required: true },
+                { name: 'Condition', type: 'select', options: ['Mint', 'Near Mint', 'Lightly Played', 'Moderately Played', 'Heavily Played', 'Damaged'], required: true },
+                { name: 'Graded', type: 'boolean', required: false },
+                { name: 'Grade Score', type: 'number', required: false }
+            ]
+        };
+
+        function loadTemplate(templateName) {
+            if (templateName === 'custom') {
+                clearAll();
+                return;
+            }
+
+            const template = templates[templateName];
+            if (template) {
+                clearAll();
+                template.forEach(attr => {
+                    addAttribute(attr);
+                });
+                updatePreview();
+            }
+        }
+
+        function addAttribute(preset = null) {
+            const attributeId = 'attr_' + (++attributeCounter);
+            
+            const attribute = {
+                id: attributeId,
+                name: preset?.name || '',
+                type: preset?.type || 'text',
+                required: preset?.required || false,
+                options: preset?.options || []
+            };
+
+            attributes.push(attribute);
+            renderAttribute(attribute);
+            updatePreview();
+        }
+
+        function renderAttribute(attribute) {
+            const attributesList = document.getElementById('attributesList');
+            
+            const attributeDiv = document.createElement('div');
+            attributeDiv.className = 'attribute-item';
+            attributeDiv.dataset.attributeId = attribute.id;
+            
+            attributeDiv.innerHTML = `
+                <input type="text" class="form-input" placeholder="Attribute name" 
+                       value="${attribute.name}" onchange="updateAttribute('${attribute.id}', 'name', this.value)">
+                
+                <select class="form-select" onchange="updateAttribute('${attribute.id}', 'type', this.value)">
+                    ${Object.entries(attributeTypes).map(([key, type]) => 
+                        `<option value="${key}" ${attribute.type === key ? 'selected' : ''}>
+                            ${type.icon} ${type.name}
+                        </option>`
+                    ).join('')}
+                </select>
+                
+                <div>
+                    ${attribute.type === 'select' ? `
+                        <input type="text" class="form-input" placeholder="Options (comma separated)" 
+                               value="${attribute.options.join(', ')}" 
+                               onchange="updateAttribute('${attribute.id}', 'options', this.value.split(',').map(s => s.trim()))">
+                    ` : `
+                        <label style="display: flex; align-items: center; gap: 0.5rem; color: #666; font-size: 0.9rem;">
+                            <input type="checkbox" class="checkbox" ${attribute.required ? 'checked' : ''} 
+                                   onchange="updateAttribute('${attribute.id}', 'required', this.checked)">
+                            Required field
+                        </label>
+                    `}
+                </div>
+                
+                <button class="btn btn-danger" onclick="removeAttribute('${attribute.id}')">
+                    🗑️
+                </button>
+            `;
+            
+            attributesList.appendChild(attributeDiv);
+        }
+
+        function updateAttribute(id, field, value) {
+            const attribute = attributes.find(a => a.id === id);
+            if (attribute) {
+                attribute[field] = value;
+                
+                // Re-render if type changed (to show/hide options)
+                if (field === 'type') {
+                    const attributeDiv = document.querySelector(`[data-attribute-id="${id}"]`);
+                    attributeDiv.remove();
+                    renderAttribute(attribute);
+                }
+                
+                updatePreview();
+            }
+        }
+
+        function removeAttribute(id) {
+            attributes = attributes.filter(a => a.id !== id);
+            const attributeDiv = document.querySelector(`[data-attribute-id="${id}"]`);
+            attributeDiv.remove();
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const previewArea = document.getElementById('previewArea');
+            
+            if (attributes.length === 0) {
+                previewArea.innerHTML = `
+                    <p style="color: #666; text-align: center; padding: 2rem;">
+                        Add attributes above to see how they'll appear in your collection items
+                    </p>
+                `;
+                return;
+            }
+
+            previewArea.innerHTML = attributes.map(attr => {
+                let sampleValue = getSampleValue(attr);
+                
+                return `
+                    <div class="preview-item">
+                        <div class="preview-label">
+                            ${attributeTypes[attr.type].icon} ${attr.name}
+                            ${attr.required ? '<span style="color: #f44336;">*</span>' : ''}
+                        </div>
+                        <div class="preview-value">${sampleValue}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getSampleValue(attribute) {
+            switch (attribute.type) {
+                case 'text':
+                    return 'Sample text value';
+                case 'number':
+                    return '42';
+                case 'boolean':
+                    return 'Yes';
+                case 'date':
+                    return '2024-01-15';
+                case 'select':
+                    return attribute.options.length > 0 ? attribute.options[0] : 'Option 1';
+                case 'rating':
+                    return '⭐⭐⭐⭐⭐ (5/5)';
+                case 'url':
+                    return 'https://example.com';
+                case 'currency':
+                    return '$25.99';
+                default:
+                    return 'Sample value';
+            }
+        }
+
+        function clearAll() {
+            attributes = [];
+            document.getElementById('attributesList').innerHTML = '';
+            updatePreview();
+        }
+
+        function saveSchema() {
+            if (attributes.length === 0) {
+                alert('Please add at least one attribute before saving.');
+                return;
+            }
+
+            const schema = {
+                attributes: attributes.map(attr => ({
+                    name: attr.name,
+                    type: attr.type,
+                    required: attr.required,
+                    options: attr.options
+                })),
+                createdAt: new Date().toISOString()
+            };
+
+            console.log('Saving schema:', schema);
+            
+            alert(`✅ Attribute schema saved successfully!\n\n${attributes.length} attributes defined:\n${attributes.map(a => `• ${a.name} (${attributeTypes[a.type].name})`).join('\n')}\n\nIn the full version, this schema would be saved to your collection template and used when adding new items.`);
+        }
+
+        // Initialize with a sample template
+        window.addEventListener('load', () => {
+            // Load gaming template by default
+            setTimeout(() => {
+                loadTemplate('gaming');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

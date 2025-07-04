@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection View - Trove</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .collection-header {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-cyan);
+        }
+        
+        .collection-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .collection-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            background: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .item-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-cyan);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--glow-cyan);
+        }
+        
+        .item-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .item-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+        
+        .item-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .item-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        .item-fields {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-cyan);
+        }
+        
+        .field-row:last-child {
+            border-bottom: none;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+        
+        .field-value {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-align: right;
+            flex: 1;
+            margin-left: 1rem;
+        }
+        
+        .condition-badge {
+            background: var(--laser-green);
+            color: var(--bg-dark);
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .condition-badge.fair,
+        .condition-badge.poor {
+            background: var(--electric-magenta);
+        }
+        
+        .floating-add-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--laser-green);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 255, 127, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .floating-add-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 255, 127, 0.5);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .back-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-cyan);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--laser-green);
+        }
+        
+        .advanced-search-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-cyan);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .advanced-search-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .advanced-search-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="app.html" class="back-btn">← Back to Collections</a>
+        
+        <div class="collection-header">
+            <h1 class="collection-title" id="collectionTitle">Loading...</h1>
+            <div class="collection-meta">
+                <div class="meta-item">
+                    <span id="itemCount">0</span> items
+                </div>
+                <div class="meta-item">
+                    Template: <span id="templateName">General</span>
+                </div>
+                <div class="meta-item">
+                    Value: $<span id="totalValue">0</span>
+                </div>
+            </div>
+            <p id="collectionDescription" class="text-secondary"></p>
+        </div>
+        
+        <div class="section-header">
+            <h2>Collection Items</h2>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <input type="text" id="searchInput" class="form-input" placeholder="Search items..." style="width: 300px;" onkeyup="searchItems()">
+                <button class="btn btn-secondary" onclick="toggleAdvancedSearch()">Advanced Search</button>
+                <button class="btn btn-primary" onclick="openAddItemModal()">+ Add Item</button>
+            </div>
+        </div>
+        
+        <!-- Advanced Search Panel -->
+        <div id="advancedSearchPanel" class="advanced-search-panel" style="display: none;">
+            <h3>Advanced Search</h3>
+            <div id="advancedSearchFields" class="advanced-search-fields">
+                <!-- Fields will be generated based on template -->
+            </div>
+            <div class="advanced-search-actions">
+                <button class="btn btn-primary" onclick="performAdvancedSearch()">Search</button>
+                <button class="btn btn-secondary" onclick="clearAdvancedSearch()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="items-grid" id="itemsContainer">
+            <!-- Items will be loaded here -->
+        </div>
+        
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📦</div>
+            <h3>No Items Yet</h3>
+            <p>Start building your collection by adding your first item!</p>
+            <button class="btn btn-primary" onclick="openAddItemModal()">Add First Item</button>
+        </div>
+    </div>
+    
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddItemModal()">&times;</span>
+            <h2 class="modal-title">Add New Item</h2>
+            <form id="addItemForm">
+                <div id="itemFormFields">
+                    <!-- Template fields will be generated here -->
+                </div>
+                <button type="submit" class="btn btn-primary">Add Item</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Collection Templates -->
+    <script src="collection-templates.js"></script>
+    
+    <script>
+        let currentCollection = null;
+        let currentItems = [];
+        
+        // Get collection ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('id');
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!collectionId) {
+                alert('No collection ID provided');
+                window.location.href = 'app.html';
+                return;
+            }
+            
+            // Check authentication
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    loadCollection();
+                } else {
+                    window.location.href = 'auth.html';
+                }
+            });
+        });
+        
+        // Load collection data
+        async function loadCollection() {
+            try {
+                const doc = await firebase.firestore().collection('collections').doc(collectionId).get();
+                
+                if (!doc.exists) {
+                    alert('Collection not found');
+                    window.location.href = 'app.html';
+                    return;
+                }
+                
+                currentCollection = { id: doc.id, ...doc.data() };
+                displayCollection();
+                loadItems();
+                
+            } catch (error) {
+                console.error('Error loading collection:', error);
+                alert('Error loading collection');
+            }
+        }
+        
+        // Display collection information
+        function displayCollection() {
+            document.getElementById('collectionTitle').textContent = currentCollection.name;
+            document.getElementById('collectionDescription').textContent = currentCollection.description || '';
+            document.getElementById('templateName').textContent = currentCollection.templateName || 'General';
+            document.getElementById('itemCount').textContent = currentCollection.itemCount || 0;
+            document.getElementById('totalValue').textContent = (currentCollection.estimatedValue || 0).toLocaleString();
+            
+            // Update page title
+            document.title = `${currentCollection.name} - Trove`;
+        }
+        
+        // Load items for this collection
+        async function loadItems() {
+            try {
+                const snapshot = await firebase.firestore()
+                    .collection('collections')
+                    .doc(collectionId)
+                    .collection('items')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                currentItems = [];
+                snapshot.forEach(doc => {
+                    currentItems.push({ id: doc.id, ...doc.data() });
+                });
+                
+                displayItems();
+                
+            } catch (error) {
+                console.error('Error loading items:', error);
+            }
+        }
+        
+        // Display items in the grid
+        function displayItems() {
+            filteredItems = [...currentItems];
+            displayFilteredItems();
+        }
+        
+        // Create item card HTML
+        function createItemCard(item) {
+            const template = TemplateManager.getTemplate(currentCollection.templateId || 'general');
+            
+            if (currentCollection.templateId === 'vinyl') {
+                return createVinylCard(item);
+            }
+            
+            // General item card
+            return `
+                <div class="item-card">
+                    <div class="item-header">
+                        <div class="item-icon">${currentCollection.templateIcon || '📦'}</div>
+                        <div>
+                            <h3 class="item-title">${item.Name || item.name || 'Untitled'}</h3>
+                            <p class="item-subtitle">${item.Description || item.description || ''}</p>
+                        </div>
+                    </div>
+                    <div class="item-fields">
+                        ${Object.entries(item).filter(([key, value]) => 
+                            key !== 'id' && key !== 'createdAt' && key !== 'updatedAt' && value
+                        ).map(([key, value]) => `
+                            <div class="field-row">
+                                <span class="field-label">${key}:</span>
+                                <span class="field-value">${formatFieldValue(key, value)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Create specialized vinyl record card
+        function createVinylCard(item) {
+            return `
+                <div class="item-card">
+                    <div class="item-header">
+                        <div class="item-icon">🎵</div>
+                        <div>
+                            <h3 class="item-title">${item.Artist || 'Unknown Artist'}</h3>
+                            <p class="item-subtitle">${item['Album Title'] || 'Unknown Album'}</p>
+                        </div>
+                    </div>
+                    <div class="item-fields">
+                        ${item.Label ? `
+                            <div class="field-row">
+                                <span class="field-label">Label:</span>
+                                <span class="field-value">${item.Label}</span>
+                            </div>
+                        ` : ''}
+                        ${item['Release Year'] ? `
+                            <div class="field-row">
+                                <span class="field-label">Year:</span>
+                                <span class="field-value">${item['Release Year']}</span>
+                            </div>
+                        ` : ''}
+                        ${item.Format ? `
+                            <div class="field-row">
+                                <span class="field-label">Format:</span>
+                                <span class="field-value">${item.Format}</span>
+                            </div>
+                        ` : ''}
+                        ${item['Vinyl Color'] ? `
+                            <div class="field-row">
+                                <span class="field-label">Vinyl Color:</span>
+                                <span class="field-value">${item['Vinyl Color']}</span>
+                            </div>
+                        ` : ''}
+                        ${item['Media Condition'] ? `
+                            <div class="field-row">
+                                <span class="field-label">Media:</span>
+                                <span class="field-value">
+                                    <span class="condition-badge ${getConditionClass(item['Media Condition'])}">${item['Media Condition']}</span>
+                                </span>
+                            </div>
+                        ` : ''}
+                        ${item['Sleeve Condition'] ? `
+                            <div class="field-row">
+                                <span class="field-label">Sleeve:</span>
+                                <span class="field-value">
+                                    <span class="condition-badge ${getConditionClass(item['Sleeve Condition'])}">${item['Sleeve Condition']}</span>
+                                </span>
+                            </div>
+                        ` : ''}
+                        ${item['Current Value'] ? `
+                            <div class="field-row">
+                                <span class="field-label">Value:</span>
+                                <span class="field-value">$${item['Current Value']}</span>
+                            </div>
+                        ` : ''}
+                        ${item['Discogs URL'] ? `
+                            <div class="field-row">
+                                <span class="field-label">Discogs:</span>
+                                <span class="field-value">
+                                    <a href="${item['Discogs URL']}" target="_blank" style="color: var(--laser-green);">View</a>
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Get condition class for styling
+        function getConditionClass(condition) {
+            if (condition.includes('Fair') || condition.includes('Poor')) {
+                return 'fair';
+            }
+            return '';
+        }
+        
+        // Format field values
+        function formatFieldValue(key, value) {
+            if (typeof value === 'number' && key.toLowerCase().includes('price')) {
+                return `$${value.toLocaleString()}`;
+            }
+            if (Array.isArray(value)) {
+                return value.join(', ');
+            }
+            return value;
+        }
+        
+        // Modal functions
+        async function openAddItemModal() {
+            const template = await TemplateManager.getTemplate(currentCollection.templateId || 'general');
+            await TemplateManager.generateItemForm(currentCollection.templateId || 'general', 'itemFormFields');
+            document.getElementById('addItemModal').style.display = 'block';
+        }
+        
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').style.display = 'none';
+        }
+        
+        // Form submission
+        document.getElementById('addItemForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const itemData = await TemplateManager.collectFormData(currentCollection.templateId || 'general', 'itemFormFields');
+            
+            try {
+                // Add to Firestore
+                await firebase.firestore()
+                    .collection('collections')
+                    .doc(collectionId)
+                    .collection('items')
+                    .add({
+                        ...itemData,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                // Update collection item count
+                await firebase.firestore()
+                    .collection('collections')
+                    .doc(collectionId)
+                    .update({
+                        itemCount: firebase.firestore.FieldValue.increment(1),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                closeAddItemModal();
+                loadItems();
+                loadCollection(); // Refresh collection data
+                
+                // Reset form
+                document.getElementById('addItemForm').reset();
+                
+            } catch (error) {
+                console.error('Error adding item:', error);
+                alert('Error adding item. Please try again.');
+            }
+        });
+        
+        // Search functionality
+        let filteredItems = [];
+        
+        function searchItems() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredItems = [...currentItems];
+            } else {
+                filteredItems = currentItems.filter(item => {
+                    return Object.values(item).some(value => 
+                        value && value.toString().toLowerCase().includes(searchTerm)
+                    );
+                });
+            }
+            
+            displayFilteredItems();
+        }
+        
+        function displayFilteredItems() {
+            const container = document.getElementById('itemsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            const itemsToShow = filteredItems.length > 0 ? filteredItems : currentItems;
+            
+            if (itemsToShow.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            container.innerHTML = itemsToShow.map(item => {
+                return createItemCard(item);
+            }).join('');
+        }
+        
+        async function toggleAdvancedSearch() {
+            const panel = document.getElementById('advancedSearchPanel');
+            const isVisible = panel.style.display !== 'none';
+            
+            if (isVisible) {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'block';
+                await generateAdvancedSearchFields();
+            }
+        }
+        
+        async function generateAdvancedSearchFields() {
+            const template = await TemplateManager.getTemplate(currentCollection.templateId || 'general');
+            const container = document.getElementById('advancedSearchFields');
+            
+            container.innerHTML = '';
+            
+            template.fields.forEach(field => {
+                const fieldDiv = document.createElement('div');
+                fieldDiv.className = 'form-group';
+                
+                const fieldId = `search_${field.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+                
+                let inputHtml = '';
+                
+                switch (field.type) {
+                    case 'text':
+                    case 'url':
+                        inputHtml = `<input type="text" id="${fieldId}" class="form-input" placeholder="Search ${field.name}">`;
+                        break;
+                    case 'number':
+                    case 'currency':
+                        inputHtml = `
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="number" id="${fieldId}_min" class="form-input" placeholder="Min" style="flex: 1;">
+                                <input type="number" id="${fieldId}_max" class="form-input" placeholder="Max" style="flex: 1;">
+                            </div>
+                        `;
+                        break;
+                    case 'select':
+                        const options = field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                        inputHtml = `<select id="${fieldId}" class="form-input">
+                            <option value="">Any ${field.name}</option>
+                            ${options}
+                        </select>`;
+                        break;
+                    case 'tags':
+                        inputHtml = `<input type="text" id="${fieldId}" class="form-input" placeholder="Search ${field.name}">`;
+                        break;
+                }
+                
+                fieldDiv.innerHTML = `
+                    <label class="form-label" for="${fieldId}">${field.name}</label>
+                    ${inputHtml}
+                `;
+                
+                container.appendChild(fieldDiv);
+            });
+        }
+        
+        async function performAdvancedSearch() {
+            const template = await TemplateManager.getTemplate(currentCollection.templateId || 'general');
+            const searchCriteria = {};
+            
+            template.fields.forEach(field => {
+                const fieldId = `search_${field.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+                const element = document.getElementById(fieldId);
+                
+                if (element && element.value) {
+                    searchCriteria[field.name] = element.value;
+                }
+                
+                // Handle range fields (number/currency)
+                if (field.type === 'number' || field.type === 'currency') {
+                    const minElement = document.getElementById(`${fieldId}_min`);
+                    const maxElement = document.getElementById(`${fieldId}_max`);
+                    
+                    if (minElement && minElement.value) {
+                        searchCriteria[`${field.name}_min`] = parseFloat(minElement.value);
+                    }
+                    if (maxElement && maxElement.value) {
+                        searchCriteria[`${field.name}_max`] = parseFloat(maxElement.value);
+                    }
+                }
+            });
+            
+            filteredItems = currentItems.filter(item => {
+                return Object.entries(searchCriteria).every(([key, value]) => {
+                    if (key.endsWith('_min')) {
+                        const fieldName = key.replace('_min', '');
+                        return item[fieldName] >= value;
+                    }
+                    if (key.endsWith('_max')) {
+                        const fieldName = key.replace('_max', '');
+                        return item[fieldName] <= value;
+                    }
+                    
+                    const itemValue = item[key];
+                    if (!itemValue) return false;
+                    
+                    return itemValue.toString().toLowerCase().includes(value.toLowerCase());
+                });
+            });
+            
+            displayFilteredItems();
+        }
+        
+        async function clearAdvancedSearch() {
+            const template = await TemplateManager.getTemplate(currentCollection.templateId || 'general');
+            
+            template.fields.forEach(field => {
+                const fieldId = `search_${field.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+                const element = document.getElementById(fieldId);
+                
+                if (element) {
+                    element.value = '';
+                }
+                
+                // Handle range fields
+                if (field.type === 'number' || field.type === 'currency') {
+                    const minElement = document.getElementById(`${fieldId}_min`);
+                    const maxElement = document.getElementById(`${fieldId}_max`);
+                    
+                    if (minElement) minElement.value = '';
+                    if (maxElement) maxElement.value = '';
+                }
+            });
+            
+            filteredItems = [...currentItems];
+            displayFilteredItems();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addItemModal');
+            if (event.target == modal) {
+                closeAddItemModal();
+            }
+        }
+    </script>
+</body>
+</html> 

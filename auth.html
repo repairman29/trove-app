@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trove Authentication - Neon Arcade</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        /* Authentication-specific styles using neon arcade theme */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--bg-dark);
+            /* Enhanced grid background for auth */
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                radial-gradient(circle at 20% 50%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 127, 0.1) 0%, transparent 50%);
+            background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%;
+        }
+        
+        .auth-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            border: 2px solid var(--border-cyan);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 30px var(--glow-cyan);
+            backdrop-filter: blur(10px);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--laser-green);
+            text-shadow: 0 0 15px var(--glow-green);
+            margin-bottom: 10px;
+        }
+        
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .auth-tagline {
+            color: var(--electric-magenta);
+            font-size: 0.9rem;
+            font-style: italic;
+            text-shadow: 0 0 5px var(--glow-magenta);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-cyan);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+        }
+        
+        .auth-tab.active {
+            background-color: var(--laser-green);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px var(--glow-green);
+        }
+        
+        .auth-tab:hover:not(.active) {
+            background-color: rgba(0, 255, 255, 0.1);
+            color: var(--cyan);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .social-login {
+            margin-bottom: 25px;
+        }
+        
+        .google-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: transparent;
+            border: 2px solid var(--electric-magenta);
+            border-radius: 8px;
+            color: var(--electric-magenta);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .google-btn:hover {
+            background-color: var(--electric-magenta);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--glow-magenta);
+            transform: translateY(-2px);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: var(--text-secondary);
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-cyan), transparent);
+        }
+        
+        .divider span {
+            background-color: var(--bg-card);
+            padding: 0 15px;
+            font-size: 0.9rem;
+        }
+        
+        .error-message {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: rgba(0, 255, 127, 0.1);
+            border: 1px solid var(--laser-green);
+            color: var(--laser-green);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .forgot-password a {
+            color: var(--cyan);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot-password a:hover {
+            color: var(--laser-green);
+            text-shadow: 0 0 5px var(--glow-green);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-cyan);
+        }
+        
+        .auth-footer a {
+            color: var(--electric-magenta);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-footer a:hover {
+            color: var(--laser-green);
+            text-shadow: 0 0 5px var(--glow-green);
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-cyan);
+            border-top: 3px solid var(--laser-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .auth-logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                <span class="treasure-chest">📦</span>
+                <span class="sparkles">✨</span>
+                Trove
+            </div>
+                <div class="auth-subtitle">Your Digital Collection Vault</div>
+                <div class="auth-tagline">"Where memories become treasures"</div>
+                
+                <div id="demoInfo" class="demo-info" style="background: rgba(0, 255, 127, 0.1); border: 1px solid var(--laser-green); padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.9rem; color: var(--laser-green); display: none;">
+                    🎮 <strong>Demo Mode Active!</strong><br>
+                    <span style="color: var(--text-secondary);">
+                        Try logging in with:<br>
+                        Email: <code>demo@trove.app</code><br>
+                        Password: <code>demo123</code>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <div class="social-login">
+                    <button class="google-btn" onclick="signInWithGoogle()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continue with Google
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <form id="emailLoginForm" onsubmit="handleEmailLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                
+                <div class="forgot-password">
+                    <a href="#" onclick="showForgotPassword()">Forgot your password?</a>
+                </div>
+            </div>
+            
+            <!-- Sign Up Form -->
+            <div id="signupForm" class="auth-form">
+                <div class="social-login">
+                    <button class="google-btn" onclick="signInWithGoogle()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Sign up with Google
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <form id="emailSignupForm" onsubmit="handleEmailSignup(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="signupName">Full Name</label>
+                        <input type="text" id="signupName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="signupEmail">Email</label>
+                        <input type="email" id="signupEmail" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
+                        <input type="password" id="signupConfirmPassword" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </form>
+            </div>
+            
+            <!-- Loading State -->
+            <div class="loading" id="loadingState">
+                <div class="loading-spinner"></div>
+                <p>Authenticating...</p>
+            </div>
+            
+            <div class="auth-footer">
+                <p>
+                    <a href="index.html">← Back to Home</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Mode (set DEMO_MODE = false for production) -->
+    <script src="demo-mode.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(tab + 'Form').classList.add('active');
+            
+            // Clear messages
+            clearMessages();
+        }
+
+        // Google Sign In
+        async function signInWithGoogle() {
+            showLoading(true);
+            clearMessages();
+            
+            try {
+                const result = await AuthUtils.signInWithGoogle();
+                if (result.success) {
+                    showSuccess('Welcome to Trove! Redirecting to dashboard...');
+                    setTimeout(() => {
+                        window.location.href = 'app.html';
+                    }, 2000);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('An error occurred during Google sign-in. Please try again.');
+                console.error('Google sign-in error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Email Login
+        async function handleEmailLogin(event) {
+            event.preventDefault();
+            showLoading(true);
+            clearMessages();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const result = await AuthUtils.signInWithEmail(email, password);
+                if (result.success) {
+                    showSuccess('Login successful! Redirecting to dashboard...');
+                    setTimeout(() => {
+                        window.location.href = 'app.html';
+                    }, 2000);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('An error occurred during login. Please try again.');
+                console.error('Email login error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Email Signup
+        async function handleEmailSignup(event) {
+            event.preventDefault();
+            clearMessages();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long');
+                return;
+            }
+            
+            if (!name.trim()) {
+                showError('Please enter your full name');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const result = await AuthUtils.createAccount(email, password, name);
+                if (result.success) {
+                    showSuccess('Account created successfully! Redirecting to dashboard...');
+                    setTimeout(() => {
+                        window.location.href = 'app.html';
+                    }, 2000);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('An error occurred during account creation. Please try again.');
+                console.error('Account creation error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Forgot Password
+        async function showForgotPassword() {
+            const email = prompt('Enter your email address:');
+            if (email) {
+                showLoading(true);
+                try {
+                    const result = await AuthUtils.resetPassword(email);
+                    if (result.success) {
+                        showSuccess('Password reset email sent! Check your inbox.');
+                    } else {
+                        showError(result.error);
+                    }
+                } catch (error) {
+                    showError('An error occurred. Please try again.');
+                    console.error('Password reset error:', error);
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        // Check if user is already authenticated
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                window.location.href = 'app.html';
+            }
+        });
+
+        // Show demo info if in demo mode
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.DEMO_MODE || typeof firebase === 'undefined' || !firebase.apps.length) {
+                document.getElementById('demoInfo').style.display = 'block';
+            }
+        });
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'block' : 'none';
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.style.display = show ? 'none' : (form.classList.contains('active') ? 'block' : 'none');
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            showLoading(false);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function clearMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 
