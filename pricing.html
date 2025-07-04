@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - Trove</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .pricing-page {
+            min-height: 100vh;
+            background: var(--deep-charcoal);
+            color: var(--off-white);
+        }
+
+        .pricing-header {
+            background: linear-gradient(135deg, var(--dark-slate), var(--deep-charcoal));
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 2px solid var(--electric-magenta);
+        }
+
+        .pricing-header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--laser-green);
+            margin: 0 0 1rem 0;
+            text-shadow: 0 0 20px rgba(0, 255, 127, 0.5);
+        }
+
+        .pricing-header p {
+            font-size: 1.2rem;
+            color: var(--off-white);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pricing-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .pricing-card {
+            background: var(--dark-slate);
+            border: 2px solid var(--vibrant-cyan);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--laser-green);
+            box-shadow: 0 10px 30px rgba(0, 255, 127, 0.2);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--laser-green);
+            box-shadow: 0 0 30px rgba(0, 255, 127, 0.3);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            color: var(--deep-charcoal);
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .plan-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--laser-green);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--electric-magenta);
+            margin: 1rem 0;
+        }
+
+        .plan-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+
+        .plan-price .period {
+            font-size: 1rem;
+            color: var(--off-white);
+            opacity: 0.7;
+        }
+
+        .plan-description {
+            color: var(--off-white);
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 0.5rem 0;
+            color: var(--off-white);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: var(--laser-green);
+            font-weight: bold;
+        }
+
+        .plan-features li.unavailable {
+            opacity: 0.5;
+        }
+
+        .plan-features li.unavailable::before {
+            content: '✗';
+            color: var(--electric-magenta);
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: var(--deep-charcoal);
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 127, 0.4);
+        }
+
+        .upgrade-btn.secondary {
+            background: linear-gradient(45deg, var(--electric-magenta), var(--vibrant-cyan));
+        }
+
+        .feature-highlight {
+            background: var(--dark-slate);
+            border: 1px solid var(--vibrant-cyan);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .feature-highlight h2 {
+            color: var(--laser-green);
+            font-family: 'Orbitron', monospace;
+            margin: 0 0 1rem 0;
+        }
+
+        .feature-highlight p {
+            color: var(--off-white);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--dark-slate);
+            border: 2px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            color: var(--off-white);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            border-color: var(--laser-green);
+            color: var(--laser-green);
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body class="pricing-page">
+    <a href="app.html" class="back-btn">← Back to Trove</a>
+
+    <header class="pricing-header">
+        <h1>💎 Choose Your Plan</h1>
+        <p>Unlock the full potential of Trove with our flexible pricing plans. Start free and upgrade as your collection grows.</p>
+    </header>
+
+    <main class="pricing-content">
+        <div class="pricing-grid">
+            <!-- Free Plan -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Free</h3>
+                <div class="plan-price">
+                    <span class="currency">$</span>0<span class="period">/month</span>
+                </div>
+                <p class="plan-description">Perfect for getting started with your first collections</p>
+                
+                <ul class="plan-features">
+                    <li>Up to 25 items</li>
+                    <li>3 collections</li>
+                    <li>Use built-in templates</li>
+                    <li>Basic photo uploads</li>
+                    <li>Community support</li>
+                    <li class="unavailable">Create custom templates</li>
+                    <li class="unavailable">Advanced search</li>
+                    <li class="unavailable">Priority support</li>
+                </ul>
+                
+                <button class="upgrade-btn secondary" onclick="startFreePlan()">Start Free</button>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="pricing-card featured">
+                <h3 class="plan-name">Pro</h3>
+                <div class="plan-price">
+                    <span class="currency">$</span>9.99<span class="period">/month</span>
+                </div>
+                <p class="plan-description">For serious collectors who want to organize everything</p>
+                
+                <ul class="plan-features">
+                    <li>Up to 5,000 items</li>
+                    <li>100 collections</li>
+                    <li>Use built-in templates</li>
+                    <li>Advanced photo uploads</li>
+                    <li>Community support</li>
+                    <li>Create unlimited custom templates</li>
+                    <li>Advanced search & filtering</li>
+                    <li>Email support</li>
+                </ul>
+                
+                <button class="upgrade-btn" onclick="upgradeToPro()">Upgrade to Pro</button>
+            </div>
+
+            <!-- Patron Plan -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Patron</h3>
+                <div class="plan-price">
+                    <span class="currency">$</span>29.99<span class="period">/month</span>
+                </div>
+                <p class="plan-description">For mega-collectors and power users</p>
+                
+                <ul class="plan-features">
+                    <li>Up to 100,000 items</li>
+                    <li>1,000 collections</li>
+                    <li>Use built-in templates</li>
+                    <li>Unlimited photo uploads</li>
+                    <li>Priority support</li>
+                    <li>Create unlimited custom templates</li>
+                    <li>Advanced search & filtering</li>
+                    <li>Priority email & chat support</li>
+                    <li>Template verification priority</li>
+                </ul>
+                
+                <button class="upgrade-btn" onclick="upgradeToPatron()">Upgrade to Patron</button>
+            </div>
+        </div>
+
+        <div class="feature-highlight">
+            <h2>🚀 Template Builder</h2>
+            <p>Create custom collection templates for any hobby or collectible. Share your expertise with the community and help others organize their collections with specialized fields and categories.</p>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Subscription Management -->
+    <script src="subscription.js"></script>
+    
+    <script>
+        // Check authentication state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+            }
+        });
+
+        function startFreePlan() {
+            // Free plan is already available
+            window.location.href = 'app.html';
+        }
+
+        async function upgradeToPro() {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    alert('Please sign in to upgrade');
+                    return;
+                }
+
+                // For demo purposes, simulate upgrade
+                if (confirm('Upgrade to Pro plan for $9.99/month? (Demo mode - no payment required)')) {
+                    await subscriptionManager.upgradeUser(user.uid, 'pro');
+                    alert('Successfully upgraded to Pro! You now have access to Template Builder and unlimited collections.');
+                    window.location.href = 'app.html';
+                }
+            } catch (error) {
+                console.error('Error upgrading:', error);
+                alert('Failed to upgrade. Please try again.');
+            }
+        }
+
+        async function upgradeToPatron() {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    alert('Please sign in to upgrade');
+                    return;
+                }
+
+                // For demo purposes, simulate upgrade
+                if (confirm('Upgrade to Patron plan for $29.99/month? (Demo mode - no payment required)')) {
+                    await subscriptionManager.upgradeUser(user.uid, 'patron');
+                    alert('Successfully upgraded to Patron! You now have access to all features and priority support.');
+                    window.location.href = 'app.html';
+                }
+            } catch (error) {
+                console.error('Error upgrading:', error);
+                alert('Failed to upgrade. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html> 

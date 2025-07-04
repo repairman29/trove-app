@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Detail - Trove</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .template-detail {
+            min-height: 100vh;
+            background: var(--deep-charcoal);
+            color: var(--off-white);
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, var(--dark-slate), var(--deep-charcoal));
+            padding: 2rem;
+            border-bottom: 2px solid var(--electric-magenta);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .template-icon-large {
+            font-size: 4rem;
+            background: var(--deep-charcoal);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--vibrant-cyan);
+        }
+
+        .template-info-large {
+            flex: 1;
+        }
+
+        .template-name-large {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--laser-green);
+            margin: 0 0 0.5rem 0;
+            text-shadow: 0 0 20px rgba(0, 255, 127, 0.5);
+        }
+
+        .template-creator-large {
+            color: var(--electric-magenta);
+            font-size: 1.1rem;
+            margin: 0 0 1rem 0;
+        }
+
+        .template-description-large {
+            color: var(--off-white);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .verified-badge-large {
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            color: var(--deep-charcoal);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .use-template-btn-large {
+            background: linear-gradient(45deg, var(--laser-green), var(--vibrant-cyan));
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: var(--deep-charcoal);
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .use-template-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 127, 0.4);
+        }
+
+        .detail-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .main-content {
+            background: var(--dark-slate);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--vibrant-cyan);
+        }
+
+        .sidebar-content {
+            background: var(--dark-slate);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--vibrant-cyan);
+            height: fit-content;
+        }
+
+        .section-title {
+            color: var(--laser-green);
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .attributes-preview {
+            margin-bottom: 2rem;
+        }
+
+        .attribute-item {
+            background: var(--deep-charcoal);
+            border: 1px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .attribute-info {
+            flex: 1;
+        }
+
+        .attribute-name {
+            color: var(--laser-green);
+            font-weight: bold;
+            margin: 0 0 0.3rem 0;
+        }
+
+        .attribute-type {
+            color: var(--electric-magenta);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .attribute-required {
+            background: var(--electric-magenta);
+            color: var(--deep-charcoal);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .attribute-options {
+            color: var(--off-white);
+            font-size: 0.9rem;
+            margin: 0.3rem 0 0 0;
+            opacity: 0.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--deep-charcoal);
+            border: 1px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            color: var(--laser-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--off-white);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .reviews-section {
+            margin-top: 2rem;
+        }
+
+        .review-item {
+            background: var(--deep-charcoal);
+            border: 1px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviewer-name {
+            color: var(--laser-green);
+            font-weight: bold;
+        }
+
+        .review-rating {
+            color: var(--electric-magenta);
+            font-size: 0.9rem;
+        }
+
+        .review-text {
+            color: var(--off-white);
+            line-height: 1.5;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--dark-slate);
+            border: 2px solid var(--vibrant-cyan);
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            color: var(--off-white);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            border-color: var(--laser-green);
+            color: var(--laser-green);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--laser-green);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .detail-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .template-name-large {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="template-detail">
+    <a href="template-library.html" class="back-btn">← Back to Library</a>
+
+    <header class="detail-header">
+        <div class="header-content">
+            <div class="template-icon-large" id="templateIcon">📦</div>
+            <div class="template-info-large">
+                <h1 class="template-name-large" id="templateName">Loading...</h1>
+                <p class="template-creator-large" id="templateCreator">by Loading...</p>
+                <p class="template-description-large" id="templateDescription">Loading...</p>
+                <div id="verifiedBadge" style="display: none;" class="verified-badge-large">
+                    ✓ Verified Template
+                </div>
+                <button class="use-template-btn-large" onclick="useTemplate()">
+                    🚀 Use This Template
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="detail-content">
+        <div class="main-content">
+            <section class="attributes-preview">
+                <h2 class="section-title">📋 Template Fields</h2>
+                <div id="attributesList">
+                    <div class="loading">Loading attributes...</div>
+                </div>
+            </section>
+
+            <section class="reviews-section">
+                <h2 class="section-title">💬 Community Reviews</h2>
+                <div id="reviewsList">
+                    <div class="loading">Loading reviews...</div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="sidebar-content">
+            <h3 class="section-title">📊 Template Stats</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="usageCount">0</span>
+                    <span class="stat-label">Adoptions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="attributeCount">0</span>
+                    <span class="stat-label">Fields</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="reviewCount">0</span>
+                    <span class="stat-label">Reviews</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="ratingAverage">0</span>
+                    <span class="stat-label">Rating</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h4 style="color: var(--laser-green); margin: 0 0 0.5rem 0;">Created</h4>
+                <span id="createdDate" style="color: var(--off-white);">Loading...</span>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Subscription Management -->
+    <script src="subscription.js"></script>
+    
+    <script>
+        let currentTemplate = null;
+
+        // Get template ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const templateId = urlParams.get('id');
+
+        if (!templateId) {
+            window.location.href = 'template-library.html';
+        }
+
+        // Initialize the detail page
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                await loadTemplateDetails();
+                await loadReviews();
+            } else {
+                window.location.href = 'auth.html';
+            }
+        });
+
+        async function loadTemplateDetails() {
+            try {
+                const templateDoc = await firebase.firestore()
+                    .collection('customTemplates')
+                    .doc(templateId)
+                    .get();
+
+                if (!templateDoc.exists) {
+                    showError('Template not found');
+                    return;
+                }
+
+                currentTemplate = templateDoc.data();
+                currentTemplate.id = templateId;
+
+                // Update header
+                document.getElementById('templateIcon').textContent = currentTemplate.icon;
+                document.getElementById('templateName').textContent = currentTemplate.name;
+                document.getElementById('templateCreator').textContent = `by ${currentTemplate.creatorName}`;
+                document.getElementById('templateDescription').textContent = currentTemplate.description;
+
+                if (currentTemplate.isVerified) {
+                    document.getElementById('verifiedBadge').style.display = 'inline-flex';
+                }
+
+                // Update stats
+                document.getElementById('usageCount').textContent = currentTemplate.usageCount || 0;
+                document.getElementById('attributeCount').textContent = currentTemplate.attributes ? currentTemplate.attributes.length : 0;
+                document.getElementById('createdDate').textContent = new Date(currentTemplate.createdAt).toLocaleDateString();
+
+                // Render attributes
+                renderAttributes();
+
+            } catch (error) {
+                console.error('Error loading template details:', error);
+                showError('Failed to load template details');
+            }
+        }
+
+        function renderAttributes() {
+            const attributesList = document.getElementById('attributesList');
+            
+            if (!currentTemplate.attributes || currentTemplate.attributes.length === 0) {
+                attributesList.innerHTML = '<p style="color: var(--off-white); opacity: 0.7;">No custom attributes defined</p>';
+                return;
+            }
+
+            attributesList.innerHTML = currentTemplate.attributes.map(attr => `
+                <div class="attribute-item">
+                    <div class="attribute-info">
+                        <h4 class="attribute-name">${attr.name}</h4>
+                        <p class="attribute-type">${getDataTypeLabel(attr.type)}</p>
+                        ${attr.options && attr.options.length > 0 ? 
+                            `<p class="attribute-options">Options: ${attr.options.join(', ')}</p>` : ''}
+                    </div>
+                    ${attr.required ? '<span class="attribute-required">Required</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function getDataTypeLabel(type) {
+            const labels = {
+                'text': 'Text',
+                'paragraph': 'Paragraph',
+                'number': 'Number',
+                'date': 'Date',
+                'boolean': 'Yes/No',
+                'dropdown': 'Dropdown',
+                'url': 'URL'
+            };
+            return labels[type] || type;
+        }
+
+        async function loadReviews() {
+            try {
+                const reviewsSnapshot = await firebase.firestore()
+                    .collection('templateReviews')
+                    .where('templateId', '==', templateId)
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+
+                const reviews = [];
+                reviewsSnapshot.forEach(doc => {
+                    const review = doc.data();
+                    review.id = doc.id;
+                    reviews.push(review);
+                });
+
+                renderReviews(reviews);
+                updateReviewStats(reviews);
+
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                document.getElementById('reviewsList').innerHTML = '<p style="color: var(--off-white); opacity: 0.7;">Failed to load reviews</p>';
+            }
+        }
+
+        function renderReviews(reviews) {
+            const reviewsList = document.getElementById('reviewsList');
+            
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<p style="color: var(--off-white); opacity: 0.7;">No reviews yet. Be the first to review this template!</p>';
+                return;
+            }
+
+            reviewsList.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="reviewer-name">${review.reviewerName}</span>
+                        <span class="review-rating">${'⭐'.repeat(review.rating)}</span>
+                    </div>
+                    <p class="review-text">${review.comment}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateReviewStats(reviews) {
+            document.getElementById('reviewCount').textContent = reviews.length;
+            
+            if (reviews.length > 0) {
+                const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+                document.getElementById('ratingAverage').textContent = averageRating.toFixed(1);
+            } else {
+                document.getElementById('ratingAverage').textContent = '0';
+            }
+        }
+
+        async function useTemplate() {
+            try {
+                // Increment usage count
+                await firebase.firestore()
+                    .collection('customTemplates')
+                    .doc(templateId)
+                    .update({
+                        usageCount: firebase.firestore.FieldValue.increment(1)
+                    });
+
+                // Redirect to collection creation with template pre-selected
+                window.location.href = `app.html?template=${templateId}`;
+            } catch (error) {
+                console.error('Error using template:', error);
+                showError('Failed to use template');
+            }
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html> 

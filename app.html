@@ -326,8 +326,10 @@
     <!-- Quick Action Buttons -->
     <div class="quick-actions">
         <button class="action-btn" onclick="window.location.href='upload.html'" title="📸 Upload Photos">📸</button>
+        <button class="action-btn secondary" onclick="window.location.href='template-library.html'" title="🏛️ Template Library">🏛️</button>
         <button class="action-btn secondary" onclick="window.location.href='attributes.html'" title="⚡ Advanced Attributes">⚡</button>
         <button class="action-btn secondary" onclick="window.location.href='backup.html'" title="💾 Backup & Restore">💾</button>
+        <button class="action-btn secondary" onclick="window.location.href='pricing.html'" title="💎 Pricing">💎</button>
         <button class="action-btn secondary" onclick="checkAdminAccess()" title="🔧 Admin Panel" id="adminBtn" style="display: none;">🔧</button>
     </div>
 
@@ -346,6 +348,11 @@
                         <!-- Custom templates will be loaded here dynamically -->
                     </select>
                     <small class="form-help">Choose a template to get specialized fields for your collection type</small>
+                    <div class="template-library-link">
+                        <a href="template-library.html" style="color: var(--laser-green); text-decoration: none; font-size: 0.9rem;">
+                            🏛️ Browse more templates in the Template Library
+                        </a>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="collectionName">Collection Name</label>
@@ -388,6 +395,9 @@
     
     <!-- Collection Management -->
     <script src="collections.js"></script>
+    
+    <!-- Subscription Management -->
+    <script src="subscription.js"></script>
     
     <script>
         // Check authentication state

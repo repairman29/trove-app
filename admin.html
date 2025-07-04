@@ -493,6 +493,9 @@
     <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
     
+    <!-- Subscription Management -->
+    <script src="subscription.js"></script>
+    
     <!-- Template Builder Script -->
     <script src="template-builder.js"></script>
     
@@ -503,17 +506,32 @@
         // Check authentication and admin privileges
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if user has admin privileges
-                const isAdmin = await checkAdminPrivileges(user);
-                if (!isAdmin) {
-                    alert('Access denied. Administrator privileges required.');
+                // Check if user has admin privileges or paid subscription
+                const hasAccess = await checkAdminPrivileges(user);
+                if (!hasAccess) {
+                    alert('Access denied. Please upgrade to Pro to access Template Builder.');
                     window.location.href = 'app.html';
                     return;
                 }
                 
+                // Check if user is actual admin
+                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                const userData = userDoc.data();
+                const isActualAdmin = userData?.role === 'admin' || userData?.role === 'support';
+                
+                // Hide analytics tab for non-admin users
+                if (!isActualAdmin) {
+                    document.querySelector('[data-tab="analytics"]').style.display = 'none';
+                    document.getElementById('analytics').style.display = 'none';
+                    // Set default tab to builder for paid users
+                    document.querySelector('[data-tab="builder"]').click();
+                }
+                
                 updateUserInfo(user);
                 loadTemplates();
-                loadAnalytics();
+                if (isActualAdmin) {
+                    loadAnalytics();
+                }
             } else {
                 window.location.href = 'auth.html';
             }
@@ -528,11 +546,17 @@
 
         async function checkAdminPrivileges(user) {
             try {
-                // Check if user has admin role in Firestore
+                // Check if user has admin role OR paid subscription for Template Builder
                 const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
-                    return userData.role === 'admin' || userData.role === 'support';
+                    // Admin users get full access
+                    if (userData.role === 'admin' || userData.role === 'support') {
+                        return true;
+                    }
+                    // Paid users get Template Builder access
+                    const tier = userData.subscriptionTier || 'free';
+                    return tier !== 'free';
                 }
                 return false;
             } catch (error) {

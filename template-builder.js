@@ -27,7 +27,21 @@ class TemplateBuilder {
         this.init();
     }
     
-    init() {
+    async init() {
+        // Check if user can create templates (subscription-based)
+        const user = auth.currentUser;
+        if (!user) {
+            this.showError('Please sign in to access Template Builder');
+            return;
+        }
+
+        const canCreate = await subscriptionManager.canCreateTemplates(user.uid);
+        if (!canCreate) {
+            // Show upgrade prompt instead of error
+            subscriptionManager.showTemplateBuilderUpgradePrompt();
+            return;
+        }
+
         // Initialize event listeners and setup
         this.setupEventListeners();
         this.loadExistingTemplates();
